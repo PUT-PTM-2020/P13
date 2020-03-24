@@ -59,6 +59,13 @@ FatFs
 FIL file;                  //uchwyt do otwartego pliku
 WORD bytes_written;        //liczba zapisanych byte
 WORD bytes_read;           //liczba odczytanych byte
+
+
+uint8_t sendUART[2] = {65, 'B'};
+uint16_t sizeSendUART = 2;
+uint8_t receiveUART[1];
+uint16_t sizeReceiveUART = 1;
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -70,6 +77,39 @@ static void MX_SPI1_Init(void);
 static void MX_SPI3_Init(void);
 static void MX_USART3_UART_Init(void);
 /* USER CODE BEGIN PFP */
+
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
+
+	if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_11) == GPIO_PIN_SET){
+		//next song
+	}
+
+	if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_12) == GPIO_PIN_SET){
+			//prev song
+		}
+
+	if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_13) == GPIO_PIN_SET){
+			//pause/start
+		}
+
+	if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_14) == GPIO_PIN_SET){
+			//volume up
+		}
+
+	if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_15) == GPIO_PIN_SET){
+			//volume down
+		}
+}
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef*huart)
+	{
+		if(huart->Instance == USART3)
+			{
+
+			// tutaj umieszczamy kod wykonywany w zależności od odebranej inf
+
+			}
+	}
+
 
 /* USER CODE END PFP */
 
