@@ -23,7 +23,6 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include"lis3dsh.h"
 #include"ff.h"
 /* USER CODE END Includes */
 
@@ -55,9 +54,8 @@ UART_HandleTypeDef huart3;
 char buffer[256];      //bufor odczytu i zapisu
 static FATFS FatFs;    //uchwyt do urządzenia FatFs (dysku, karty SD...)
 FRESULT fresult;       //do przechowywania wyniku operacji na bibliotece
-FatFs
-FIL file;                  //uchwyt do otwartego pliku
-WORD bytes_written;        //liczba zapisanych byte
+FIL file;
+WORD bytes_written;
 WORD bytes_read;           //liczba odczytanych byte
 
 
@@ -158,7 +156,10 @@ int main(void)
   MX_SPI3_Init();
   MX_USART3_UART_Init();
   /* USER CODE BEGIN 2 */
-
+  fresult = f_mount(&FatFs, "", 0);
+  fresult = f_open(&file, "read.txt", FA_READ);
+  fresult = f_read(&file, buffer, 16, &bytes_read);
+  fresult = f_close(&file);
   /* USER CODE END 2 */
 
   /* Infinite loop */
