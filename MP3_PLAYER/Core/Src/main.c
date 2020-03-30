@@ -82,22 +82,27 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
 
 	if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_11) == GPIO_PIN_SET){
 		//next song
+		HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_12);
 	}
 
 	if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_12) == GPIO_PIN_SET){
 			//prev song
+		HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_13);
 		}
 
 	if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_13) == GPIO_PIN_SET){
 			//pause/start
+		HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_14);
 		}
 
 	if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_14) == GPIO_PIN_SET){
 			//volume up
+		HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_15);
 		}
 
 	if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_15) == GPIO_PIN_SET){
 			//volume down
+		HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_15);
 		}
 }
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef*huart)
@@ -419,7 +424,11 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOH_CLK_ENABLE();
   __HAL_RCC_GPIOA_CLK_ENABLE();
   __HAL_RCC_GPIOB_CLK_ENABLE();
+  __HAL_RCC_GPIOD_CLK_ENABLE();
   __HAL_RCC_GPIOC_CLK_ENABLE();
+
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(GPIOD, GPIO_PIN_12|GPIO_PIN_13|GPIO_PIN_14|GPIO_PIN_15, GPIO_PIN_RESET);
 
   /*Configure GPIO pins : PB11 PB12 PB13 PB14 
                            PB15 */
@@ -428,6 +437,13 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_PULLUP;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
+  /*Configure GPIO pins : PD12 PD13 PD14 PD15 */
+  GPIO_InitStruct.Pin = GPIO_PIN_12|GPIO_PIN_13|GPIO_PIN_14|GPIO_PIN_15;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
 
 }
 
