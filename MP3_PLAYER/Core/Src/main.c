@@ -23,8 +23,8 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include"lis3dsh.h"
-#include"ff.h"
+
+#include "ff.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -55,7 +55,6 @@ UART_HandleTypeDef huart3;
 char buffer[256];      //bufor odczytu i zapisu
 static FATFS FatFs;    //uchwyt do urządzenia FatFs (dysku, karty SD...)
 FRESULT fresult;       //do przechowywania wyniku operacji na bibliotece
-FatFs
 FIL file;                  //uchwyt do otwartego pliku
 WORD bytes_written;        //liczba zapisanych byte
 WORD bytes_read;           //liczba odczytanych byte
@@ -166,7 +165,7 @@ int main(void)
   while (1)
   {
     /* USER CODE END WHILE */
-
+	  HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_12);
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
