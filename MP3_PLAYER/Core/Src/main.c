@@ -81,6 +81,7 @@ double glosnosc_guziczki [10] = {0,0.25,0.5,1,2,4,8,10,12,15};
 int value = 0;
 
 
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
