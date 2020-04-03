@@ -75,13 +75,7 @@ uint16_t sizeReceiveUART = 1;
 int i=0;
 
 int indeks_glosnosci = 0;
-
-double glosnosc_guziczki [10] = {0,0.25,0.5,1,2,4,8,10,12,15};
-
-int value = 0;
-
-
-
+double glosnosc_guziczki [10] = {0,0.25,0.5,1,2,4,8,10,15,20};
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -98,14 +92,12 @@ static void MX_TIM4_Init(void);
 
 
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
-	//komentarz testowy
-	//test 2
+
 	 if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_11) == GPIO_PIN_RESET){
 
 		 //ciszej
 
-		 if(indeks_glosnosci>0 && indeks_glosnosci<=10)
-					 indeks_glosnoci--;
+		 if(indeks_glosnosci>0 && indeks_glosnosci<=9) indeks_glosnosci--;
 
 		  	}
 
@@ -131,8 +123,8 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
 
 		 //glosniej
 
-		 if(indeks_glosnosci>=0 && indeks_glosnosci<10)
-			 indeks_glosnoci++;
+		 if(indeks_glosnosci>=0 && indeks_glosnosci<9)
+			 indeks_glosnosci++;
 			 	}
 	 HAL_Delay(200);
 
@@ -141,7 +133,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 if(htim->Instance == TIM4)
 {
-	HAL_DAC_SetValue(&hdac,DAC_CHANNEL_1,DAC_ALIGN_12B_R,rawAudio[i]*0.25);
+	HAL_DAC_SetValue(&hdac,DAC_CHANNEL_1,DAC_ALIGN_12B_R,rawAudio[i]*glosnosc_guziczki[indeks_glosnosci]);
 	i++;
 }
 }
@@ -206,9 +198,6 @@ int main(void)
   fresult = f_read(&file, buffer, 16, &bytes_read);
   fresult = f_close(&file);
   HAL_DAC_Start(&hdac,DAC_CHANNEL_1);
-
-
-  HAL_ADC_Start(&hadc1);
 
   /* USER CODE END 2 */
 
@@ -290,7 +279,7 @@ static void MX_ADC1_Init(void)
   hadc1.Init.ClockPrescaler = ADC_CLOCK_SYNC_PCLK_DIV4;
   hadc1.Init.Resolution = ADC_RESOLUTION_12B;
   hadc1.Init.ScanConvMode = DISABLE;
-  hadc1.Init.ContinuousConvMode = ENABLE;
+  hadc1.Init.ContinuousConvMode = DISABLE;
   hadc1.Init.DiscontinuousConvMode = DISABLE;
   hadc1.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_NONE;
   hadc1.Init.ExternalTrigConv = ADC_SOFTWARE_START;
