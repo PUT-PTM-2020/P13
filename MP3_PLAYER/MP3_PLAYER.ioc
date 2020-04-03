@@ -176,7 +176,11 @@ ProjectManager.UnderRoot=true
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 ProjectManager.functionlistsort=1-SystemClock_Config-RCC-false-HAL-false,2-MX_GPIO_Init-GPIO-false-HAL-true,3-MX_ADC1_Init-ADC1-false-HAL-true,4-MX_DAC_Init-DAC-false-HAL-true,5-MX_SPI1_Init-SPI1-false-HAL-true,6-MX_SPI3_Init-SPI3-false-HAL-true,7-MX_USART3_UART_Init-USART3-false-HAL-true,8-MX_TIM6_Init-TIM6-false-HAL-true
+=======
+ProjectManager.functionlistsort=1-SystemClock_Config-RCC-false-HAL-false,1-MX_GPIO_Init-GPIO-false-HAL-true,3-MX_ADC1_Init-ADC1-false-HAL-true,4-MX_DAC_Init-DAC-false-HAL-true,5-MX_SPI1_Init-SPI1-false-HAL-true,6-MX_SPI3_Init-SPI3-false-HAL-true,7-MX_USART3_UART_Init-USART3-false-HAL-true,8-MX_TIM6_Init-TIM6-false-HAL-true
+>>>>>>> parent of 209d703... Zmiana głośności
 =======
 ProjectManager.functionlistsort=1-SystemClock_Config-RCC-false-HAL-false,1-MX_GPIO_Init-GPIO-false-HAL-true,3-MX_ADC1_Init-ADC1-false-HAL-true,4-MX_DAC_Init-DAC-false-HAL-true,5-MX_SPI1_Init-SPI1-false-HAL-true,6-MX_SPI3_Init-SPI3-false-HAL-true,7-MX_USART3_UART_Init-USART3-false-HAL-true,8-MX_TIM6_Init-TIM6-false-HAL-true
 >>>>>>> parent of 209d703... Zmiana głośności
