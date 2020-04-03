@@ -75,26 +75,12 @@ uint16_t sizeReceiveUART = 1;
 int i=0;
 
 int indeks_glosnosci = 0;
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
+
 double glosnosc_guziczki [10] = {0,0.25,0.5,1,2,4,8,10,12,15};
 
 int value = 0;
 
-=======
-int glosnosc_guziczki [10] = {0,0.25,0.5,1,2,4,8,10,15,20};
->>>>>>> parent of 209d703... Zmiana głośności
-=======
-int glosnosc_guziczki [10] = {0,0.25,0.5,1,2,4,8,10,15,20};
->>>>>>> parent of 209d703... Zmiana głośności
-=======
-int glosnosc_guziczki [10] = {0,0.25,0.5,1,2,4,8,10,15,20};
->>>>>>> parent of 209d703... Zmiana głośności
-=======
-int glosnosc_guziczki [10] = {0,0.25,0.5,1,2,4,8,10,15,20};
->>>>>>> parent of 209d703... Zmiana głośności
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -169,23 +155,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef*huart)
 			}
 	}
 
-void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc){
 
-	if(HAL_ADC_PollForConversion(&hadc1, 10) == HAL_OK){
-		  		  value = HAL_ADC_GetValue(&hadc1);
-		  	  }
-
-		  	  if(value>0 && value < 410) indeks_glosnosci = 0;
-		  	  else if(value>410 && value < 819) indeks_glosnosci = 1;
-		  	  else if(value>819 && value < 1228) indeks_glosnosci = 2;
-		  	else if(value>1228 && value < 1647) indeks_glosnosci = 3;
-		  	else if(value>1647 && value < 2058) indeks_glosnosci = 4;
-		  	else if(value>2058 && value < 2467) indeks_glosnosci = 5;
-		  	else if(value>2467 && value < 2876) indeks_glosnosci = 6;
-		  	else if(value>2876 && value < 3285) indeks_glosnosci = 7;
-		  	else if(value>3285 && value < 3692) indeks_glosnosci = 8;
-		  	else if(value>3692 && value < 4095) indeks_glosnosci = 9;
-}
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -319,7 +289,7 @@ static void MX_ADC1_Init(void)
   hadc1.Init.ClockPrescaler = ADC_CLOCK_SYNC_PCLK_DIV4;
   hadc1.Init.Resolution = ADC_RESOLUTION_12B;
   hadc1.Init.ScanConvMode = DISABLE;
-  hadc1.Init.ContinuousConvMode = DISABLE;
+  hadc1.Init.ContinuousConvMode = ENABLE;
   hadc1.Init.DiscontinuousConvMode = DISABLE;
   hadc1.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_NONE;
   hadc1.Init.ExternalTrigConv = ADC_SOFTWARE_START;
