@@ -73,6 +73,9 @@ uint16_t sizeSendUART = 2;
 uint8_t receiveUART[1];
 uint16_t sizeReceiveUART = 1;
 int i=0;
+
+int indeks_glosnosci = 0;
+int glosnosc_guziczki [10] = {0,0.25,0.5,1,2,4,8,10,15,20};
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -92,8 +95,11 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
 	//komentarz testowy
 	//test 2
 	 if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_11) == GPIO_PIN_RESET){
-		  		//next song
-		  		HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_12);
+
+		 //ciszej
+
+		 if(indeks_glosnosci>0 && indeks_glosnosci<=10)
+					 indeks_glosnoci--;
 
 		  	}
 
@@ -103,8 +109,11 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
 
 			}
 	 if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_13) == GPIO_PIN_RESET){
+
 		 //pause/start
-	 			  	HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_14);
+
+		 HAL_TIM_Base_Start_IT(&htim4);
+		 		 i=0;
 
 	 		}
 	 if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_14) == GPIO_PIN_RESET){
@@ -113,8 +122,11 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
 
 		 	}
 	 if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_15) == GPIO_PIN_RESET){
-		 HAL_TIM_Base_Start_IT(&htim4);
-		 i=0;
+
+		 //glosniej
+
+		 if(indeks_glosnosci>=0 && indeks_glosnosci<10)
+			 indeks_glosnoci++;
 			 	}
 	 HAL_Delay(200);
 
@@ -565,12 +577,6 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
-
-  /*Configure GPIO pin : PA10 */
-  GPIO_InitStruct.Pin = GPIO_PIN_10;
-  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
   /* EXTI interrupt init*/
   HAL_NVIC_SetPriority(EXTI0_IRQn, 1, 0);
