@@ -75,7 +75,7 @@ uint16_t sizeReceiveUART = 1;
 int i=0;
 
 int indeks_glosnosci = 0;
-int glosnosc_guziczki [10] = {0,0.25,0.5,1,2,4,8,10,15,20};
+double glosnosc_guziczki [10] = {0,0.25,0.5,1,2,4,8,10,15,20};
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -92,14 +92,12 @@ static void MX_TIM4_Init(void);
 
 
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
-	//komentarz testowy
-	//test 2
+
 	 if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_11) == GPIO_PIN_RESET){
 
 		 //ciszej
 
-		 if(indeks_glosnosci>0 && indeks_glosnosci<=10)
-					 indeks_glosnoci--;
+		 if(indeks_glosnosci>0 && indeks_glosnosci<=9) indeks_glosnosci--;
 
 		  	}
 
@@ -125,8 +123,8 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
 
 		 //glosniej
 
-		 if(indeks_glosnosci>=0 && indeks_glosnosci<10)
-			 indeks_glosnoci++;
+		 if(indeks_glosnosci>=0 && indeks_glosnosci<9)
+			 indeks_glosnosci++;
 			 	}
 	 HAL_Delay(200);
 
@@ -135,7 +133,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 if(htim->Instance == TIM4)
 {
-	HAL_DAC_SetValue(&hdac,DAC_CHANNEL_1,DAC_ALIGN_12B_R,rawAudio[i]*0.25);
+	HAL_DAC_SetValue(&hdac,DAC_CHANNEL_1,DAC_ALIGN_12B_R,rawAudio[i]*glosnosc_guziczki[indeks_glosnosci]);
 	i++;
 }
 }
