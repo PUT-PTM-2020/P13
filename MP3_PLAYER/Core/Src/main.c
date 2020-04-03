@@ -77,10 +77,14 @@ int i=0;
 int indeks_glosnosci = 0;
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 double glosnosc_guziczki [10] = {0,0.25,0.5,1,2,4,8,10,12,15};
 
 int value = 0;
 
+=======
+int glosnosc_guziczki [10] = {0,0.25,0.5,1,2,4,8,10,15,20};
+>>>>>>> parent of 209d703... Zmiana głośności
 =======
 int glosnosc_guziczki [10] = {0,0.25,0.5,1,2,4,8,10,15,20};
 >>>>>>> parent of 209d703... Zmiana głośności
