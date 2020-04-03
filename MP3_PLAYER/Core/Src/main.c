@@ -151,7 +151,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef*huart)
 			}
 	}
 
-void HAL_ADCEx_InjectedConvCpltCallback(ADC_HandleTypeDef* hadc){
+void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc){
 
 	if(HAL_ADC_PollForConversion(&hadc1, 10) == HAL_OK){
 		  		  value = HAL_ADC_GetValue(&hadc1);
