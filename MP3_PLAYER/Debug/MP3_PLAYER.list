@@ -5675,6 +5675,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
  8002e48:	af00      	add	r7, sp, #0
  8002e4a:	4603      	mov	r3, r0
  8002e4c:	80fb      	strh	r3, [r7, #6]
+	//komentarz testowy
 	 if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_11) == GPIO_PIN_RESET){
  8002e4e:	f44f 6100 	mov.w	r1, #2048	; 0x800
  8002e52:	4823      	ldr	r0, [pc, #140]	; (8002ee0 <HAL_GPIO_EXTI_Callback+0x9c>)

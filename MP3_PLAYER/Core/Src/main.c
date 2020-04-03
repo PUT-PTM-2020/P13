@@ -89,6 +89,7 @@ static void MX_TIM4_Init(void);
 
 
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
+	//komentarz testowy
 	 if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_11) == GPIO_PIN_RESET){
 		  		//next song
 		  		HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_12);
