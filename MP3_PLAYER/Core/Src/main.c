@@ -86,6 +86,12 @@ double glosnosc_guziczki [10] = {0,0.25,0.5,1,2,4,8,10,15,20};
 int value = 0;
 
 int stan = 1; //0 pauza 1 start
+
+
+volatile unsigned int ii=0, indeks=0, buf_1=1, play=1, read=1, time1;
+volatile unsigned char bufor1[BUFF_SIZE], bufor0[BUFF_SIZE];
+
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -136,7 +142,8 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
 			}
 	 if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_13) == GPIO_PIN_RESET){
 
-		 //pause/start
+
+		 read_b();//pause/start
 		 //na razie tylko startuje
 		 if(stan==1){
 		 HAL_TIM_Base_Start_IT(&htim4);
@@ -168,7 +175,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 if(htim->Instance == TIM4)
 {
-	HAL_DAC_SetValue(&hdac,DAC_CHANNEL_1,DAC_ALIGN_12B_R,rawAudio[i]*glosnosc_guziczki[indeks_glosnosci]);
+	HAL_DAC_SetValue(&hdac,DAC_CHANNEL_1,DAC_ALIGN_12B_R,bufor0[i]*glosnosc_guziczki[indeks_glosnosci]);
 	i++;
 }
 }
@@ -190,30 +197,46 @@ FRESULT scan_files (
     FRESULT res;
     DIR dir;
     UINT i;
-    static FILINFO fno;
+    static FILINFO finfo;
 
 
-    res = f_opendir(&dir, path);                       /* Open the directory */
-    if (res == FR_OK) {
-        for (;;) {
-            res = f_readdir(&dir, &fno);                   /* Read a directory item */
-            if (res != FR_OK || fno.fname[0] == 0) break;  /* Break on error or end of dir */
-            if (fno.fattrib & AM_DIR) {                    /* It is a directory */
-                i = strlen(path);
-                sprintf(&path[i], "/%s", fno.fname);
-                res = scan_files(path);                    /* Enter the directory */
-                if (res != FR_OK) break;
-                path[i] = 0;
-            } else {                                       /* It is a file. */
-                printf("%s/%s\n", path, fno.fname);
-            }
-        }
-        f_closedir(&dir);
+    do
+    	{
+    		n=0;
+    		res = f_readdir(&dir, &finfo);
+    		if ((res != FR_OK) || !finfo.fname[0])
+    		{
+    			f_opendir(&dir, ptr);
+    			res = f_readdir(&dir, &finfo);
+    		}
+    		if(!(finfo.fattrib & AM_DIR)) while(finfo.fname[n++]);
+    	}while((finfo.fattrib & AM_DIR) || (finfo.fname[n-2]!='V') || (finfo.fname[n-3]!='A') || (finfo.fname[n-4]!='W') );
 
-    }
-    return res;
+    	f_close(&plik);
+    	f_open(&plik, &(finfo.fname[0]) , FA_READ|FA_OPEN_EXISTING);
+
+    	buf_1=0;
+    		ii=0;
+    		indeks=0;
+    		read=1;
+    		play=1;
 }
 
+void read_b(void)
+{
+	if(read==1)
+	{
+		if(buf_1)								//load to first buffor
+		{
+			f_read(&plik, bufor0, BUFF_SIZE, &bw);
+		}else									//load to second buffor
+		{
+			GPIO_Toggle(LED1);
+			f_read(&plik, bufor1, BUFF_SIZE, &bw);
+		}
+		read=0;
+	}
+}
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
