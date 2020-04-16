@@ -59,7 +59,7 @@ UART_HandleTypeDef huart3;
 /* USER CODE BEGIN PV */
 char buffer[256];      //bufor odczytu i zapisu
 static FATFS FatFs;    //uchwyt do urządzenia FatFs (dysku, karty SD...)
-FRESULT fresult;       //do przechowywania wyniku operacji na bibliotece
+FRESULT fresult;  //do przechowywania wyniku operacji na bibliotece
 
 FIL file;
 WORD bytes_written;
@@ -177,6 +177,18 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef*huart)
 	}
 
 
+void read_song(){
+
+	DIR dir;
+	UINT i;
+	static FILINFO fno;
+
+	fresult=f_readdir(&dir,&fno); //czytanie z folderu
+	if (fno.fattrib & AM_DIR){
+
+	}
+}
+
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -221,13 +233,13 @@ int main(void)
   MX_TIM6_Init();
   MX_TIM4_Init();
   /* USER CODE BEGIN 2 */
+
   fresult = f_mount(&FatFs, "", 0);
-  fresult = f_open(&file, "read.txt", FA_READ);
-  fresult = f_read(&file, buffer, 16, &bytes_read);
-  fresult = f_close(&file);
+
+
   HAL_DAC_Start(&hdac,DAC_CHANNEL_1);
   HAL_ADC_Start_IT(&hadc1);
-
+  read_song();
   /* USER CODE END 2 */
 
   /* Infinite loop */
