@@ -77,6 +77,8 @@ int i=0;
 int indeks_glosnosci = 0;
 double glosnosc_guziczki [10] = {0,0.25,0.5,1,2,4,8,10,15,20};
 int value = 0;
+
+int stan = 0; //0 pauza 1 start
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -129,8 +131,15 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
 
 		 //pause/start
 		 //na razie tylko startuje
+		 if(stan==1){
 		 HAL_TIM_Base_Start_IT(&htim4);
-		 		 i=0;
+		 stan = 0;
+		 }
+		 else
+		 {
+			 HAL_TIM_Base_Stop_IT(&htim4);
+			 stan=1;
+		 }
 
 	 		}
 	 if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_14) == GPIO_PIN_RESET){
