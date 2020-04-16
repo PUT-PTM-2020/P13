@@ -183,6 +183,36 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef*huart)
 			}
 	}
 
+FRESULT scan_files (
+    char* path        /* Start node to be scanned (***also used as work area***) */
+)
+{
+    FRESULT res;
+    DIR dir;
+    UINT i;
+    static FILINFO fno;
+
+
+    res = f_opendir(&dir, path);                       /* Open the directory */
+    if (res == FR_OK) {
+        for (;;) {
+            res = f_readdir(&dir, &fno);                   /* Read a directory item */
+            if (res != FR_OK || fno.fname[0] == 0) break;  /* Break on error or end of dir */
+            if (fno.fattrib & AM_DIR) {                    /* It is a directory */
+                i = strlen(path);
+                sprintf(&path[i], "/%s", fno.fname);
+                res = scan_files(path);                    /* Enter the directory */
+                if (res != FR_OK) break;
+                path[i] = 0;
+            } else {                                       /* It is a file. */
+                printf("%s/%s\n", path, fno.fname);
+            }
+        }
+        f_closedir(&dir);
+
+    }
+    return res;
+}
 
 /* USER CODE END PFP */
 
@@ -228,13 +258,25 @@ int main(void)
   MX_TIM6_Init();
   MX_TIM4_Init();
   /* USER CODE BEGIN 2 */
-  fresult = f_mount(&FatFs, "", 0);
+ // fresult = f_mount(&FatFs, "", 0);
   //fresult = f_open(&file, "read.txt", FA_READ);
   //fresult = f_read(&file, buffer, 16, &bytes_read);
   //fresult = f_close(&file);
   HAL_DAC_Start(&hdac,DAC_CHANNEL_1);
   HAL_ADC_Start_IT(&hadc1);
 
+  FATFS fs;
+	     FRESULT res;
+	     char buff[256];
+
+
+	     res = f_mount(&fs, "", 1);
+	     if (res == FR_OK) {
+	         strcpy(buff, "/");
+	         res = scan_files(buff);
+	     }
+
+	     return res;
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -242,17 +284,6 @@ int main(void)
   while (1)
   {
 
-	  res = f_readdir(&dir, &fno);                   /* Read a directory item */
-	              if (res != FR_OK || fno.fname[0] == 0) break;  /* Break on error or end of dir */
-	              if (fno.fattrib & AM_DIR) {                    /* It is a directory */
-	                  z = strlen(buffer);
-	                  sprintf(&buffer[i], "/%s", fno.fname);
-	                  res = scan_files(buffer);                    /* Enter the directory */
-	                  if (res != FR_OK) break;
-	                  buffer[i] = 0;
-	              } else {                                       /* It is a file. */
-	                  printf("%s/%s\n", buffer, fno.fname);
-	              }
 
     /* USER CODE END WHILE */
 
