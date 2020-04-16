@@ -74,11 +74,11 @@ uint8_t receiveUART[1];
 uint16_t sizeReceiveUART = 1;
 int i=0;
 
-int indeks_glosnosci = 0;
+int indeks_glosnosci = 4;
 double glosnosc_guziczki [10] = {0,0.25,0.5,1,2,4,8,10,15,20};
 int value = 0;
 
-int stan = 0; //0 pauza 1 start
+int stan = 1; //0 pauza 1 start
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
