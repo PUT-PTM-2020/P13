@@ -57,6 +57,13 @@ TIM_HandleTypeDef htim6;
 UART_HandleTypeDef huart3;
 
 /* USER CODE BEGIN PV */
+
+FRESULT res;
+    DIR dir;
+    UINT z;
+    static FILINFO fno;
+
+
 char buffer[256];      //bufor odczytu i zapisu
 static FATFS FatFs;    //uchwyt do urządzenia FatFs (dysku, karty SD...)
 FRESULT fresult;       //do przechowywania wyniku operacji na bibliotece
@@ -222,9 +229,9 @@ int main(void)
   MX_TIM4_Init();
   /* USER CODE BEGIN 2 */
   fresult = f_mount(&FatFs, "", 0);
-  fresult = f_open(&file, "read.txt", FA_READ);
-  fresult = f_read(&file, buffer, 16, &bytes_read);
-  fresult = f_close(&file);
+  //fresult = f_open(&file, "read.txt", FA_READ);
+  //fresult = f_read(&file, buffer, 16, &bytes_read);
+  //fresult = f_close(&file);
   HAL_DAC_Start(&hdac,DAC_CHANNEL_1);
   HAL_ADC_Start_IT(&hadc1);
 
@@ -235,6 +242,17 @@ int main(void)
   while (1)
   {
 
+	  res = f_readdir(&dir, &fno);                   /* Read a directory item */
+	              if (res != FR_OK || fno.fname[0] == 0) break;  /* Break on error or end of dir */
+	              if (fno.fattrib & AM_DIR) {                    /* It is a directory */
+	                  z = strlen(buffer);
+	                  sprintf(&buffer[i], "/%s", fno.fname);
+	                  res = scan_files(buffer);                    /* Enter the directory */
+	                  if (res != FR_OK) break;
+	                  buffer[i] = 0;
+	              } else {                                       /* It is a file. */
+	                  printf("%s/%s\n", buffer, fno.fname);
+	              }
 
     /* USER CODE END WHILE */
 
