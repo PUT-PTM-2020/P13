@@ -57,13 +57,6 @@ TIM_HandleTypeDef htim6;
 UART_HandleTypeDef huart3;
 
 /* USER CODE BEGIN PV */
-
-FRESULT res;
-    DIR dir;
-    UINT z;
-    static FILINFO fno;
-
-
 char buffer[256];      //bufor odczytu i zapisu
 static FATFS FatFs;    //uchwyt do urządzenia FatFs (dysku, karty SD...)
 FRESULT fresult;       //do przechowywania wyniku operacji na bibliotece
@@ -81,17 +74,11 @@ uint8_t receiveUART[1];
 uint16_t sizeReceiveUART = 1;
 int i=0;
 
-int indeks_glosnosci = 4;
+int indeks_glosnosci = 0;
 double glosnosc_guziczki [10] = {0,0.25,0.5,1,2,4,8,10,15,20};
 int value = 0;
 
-int stan = 1; //0 pauza 1 start
-
-
-volatile unsigned int ii=0, indeks=0, buf_1=1, play=1, read=1, time1;
-volatile unsigned char bufor1[BUFF_SIZE], bufor0[BUFF_SIZE];
-
-
+int stan = 0; //0 pauza 1 start
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -142,8 +129,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
 			}
 	 if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_13) == GPIO_PIN_RESET){
 
-
-		 read_b();//pause/start
+		 //pause/start
 		 //na razie tylko startuje
 		 if(stan==1){
 		 HAL_TIM_Base_Start_IT(&htim4);
@@ -175,7 +161,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 if(htim->Instance == TIM4)
 {
-	HAL_DAC_SetValue(&hdac,DAC_CHANNEL_1,DAC_ALIGN_12B_R,bufor0[i]*glosnosc_guziczki[indeks_glosnosci]);
+	HAL_DAC_SetValue(&hdac,DAC_CHANNEL_1,DAC_ALIGN_12B_R,rawAudio[i]*glosnosc_guziczki[indeks_glosnosci]);
 	i++;
 }
 }
@@ -190,53 +176,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef*huart)
 			}
 	}
 
-FRESULT scan_files (
-    char* path        /* Start node to be scanned (***also used as work area***) */
-)
-{
-    FRESULT res;
-    DIR dir;
-    UINT i;
-    static FILINFO finfo;
 
-
-    do
-    	{
-    		n=0;
-    		res = f_readdir(&dir, &finfo);
-    		if ((res != FR_OK) || !finfo.fname[0])
-    		{
-    			f_opendir(&dir, ptr);
-    			res = f_readdir(&dir, &finfo);
-    		}
-    		if(!(finfo.fattrib & AM_DIR)) while(finfo.fname[n++]);
-    	}while((finfo.fattrib & AM_DIR) || (finfo.fname[n-2]!='V') || (finfo.fname[n-3]!='A') || (finfo.fname[n-4]!='W') );
-
-    	f_close(&plik);
-    	f_open(&plik, &(finfo.fname[0]) , FA_READ|FA_OPEN_EXISTING);
-
-    	buf_1=0;
-    		ii=0;
-    		indeks=0;
-    		read=1;
-    		play=1;
-}
-
-void read_b(void)
-{
-	if(read==1)
-	{
-		if(buf_1)								//load to first buffor
-		{
-			f_read(&plik, bufor0, BUFF_SIZE, &bw);
-		}else									//load to second buffor
-		{
-			GPIO_Toggle(LED1);
-			f_read(&plik, bufor1, BUFF_SIZE, &bw);
-		}
-		read=0;
-	}
-}
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -281,25 +221,13 @@ int main(void)
   MX_TIM6_Init();
   MX_TIM4_Init();
   /* USER CODE BEGIN 2 */
- // fresult = f_mount(&FatFs, "", 0);
-  //fresult = f_open(&file, "read.txt", FA_READ);
-  //fresult = f_read(&file, buffer, 16, &bytes_read);
-  //fresult = f_close(&file);
+  fresult = f_mount(&FatFs, "", 0);
+  fresult = f_open(&file, "read.txt", FA_READ);
+  fresult = f_read(&file, buffer, 16, &bytes_read);
+  fresult = f_close(&file);
   HAL_DAC_Start(&hdac,DAC_CHANNEL_1);
   HAL_ADC_Start_IT(&hadc1);
 
-  FATFS fs;
-	     FRESULT res;
-	     char buff[256];
-
-
-	     res = f_mount(&fs, "", 1);
-	     if (res == FR_OK) {
-	         strcpy(buff, "/");
-	         res = scan_files(buff);
-	     }
-
-	     return res;
   /* USER CODE END 2 */
 
   /* Infinite loop */
