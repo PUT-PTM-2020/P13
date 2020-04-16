@@ -61,6 +61,8 @@ char buffer[256];      //bufor odczytu i zapisu
 static FATFS FatFs;    //uchwyt do urządzenia FatFs (dysku, karty SD...)
 FRESULT fresult;  //do przechowywania wyniku operacji na bibliotece
 
+char path[20];
+
 FIL file;
 WORD bytes_written;
 
@@ -184,9 +186,9 @@ void read_song(){
 	static FILINFO fno;
 
 	fresult=f_readdir(&dir,&fno); //czytanie z folderu
-	if (fno.fattrib & AM_DIR){
-
-	}
+	i = strlen(path);
+	sprintf(&path[i], "/%s", fno.fname);
+	printf("%s/%s\n", path, fno.fname);
 }
 
 /* USER CODE END PFP */
