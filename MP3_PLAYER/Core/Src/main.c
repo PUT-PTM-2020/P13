@@ -74,13 +74,17 @@ uint8_t sendUART[2] = {65, 'B'};
 uint16_t sizeSendUART = 2;
 uint8_t receiveUART[1];
 uint16_t sizeReceiveUART = 1;
-int i=0;
+int i=352;
 
 int indeks_glosnosci = 0;
 double glosnosc_guziczki [10] = {0,0.25,0.5,1,2,4,8,10,15,20};
 int value = 0;
 
 int stan = 0; //0 pauza 1 start
+
+char nazwa[11]={"wotakoi.wav"};
+uint8_t buf[123200];
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -162,8 +166,13 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 if(htim->Instance == TIM4)
 {
-	HAL_DAC_SetValue(&hdac,DAC_CHANNEL_1,DAC_ALIGN_12B_R,rawAudio[i]*glosnosc_guziczki[indeks_glosnosci]);
+
+	HAL_DAC_SetValue(&hdac,DAC_CHANNEL_1,DAC_ALIGN_12B_R,buf[i]*glosnosc_guziczki[indeks_glosnosci]);
 	i++;
+
+	//Utwór testowy 1
+	//HAL_DAC_SetValue(&hdac,DAC_CHANNEL_1,DAC_ALIGN_12B_R,rawAudio[i]*glosnosc_guziczki[indeks_glosnosci]);
+	//i++;
 }
 }
 
@@ -214,6 +223,7 @@ FRESULT scan_files (
                 path[i] = 0;
             } else {                                       /* It is a file. */
                 printf("%s/%s\n", path, fno.fname);
+
             }
         }
         f_closedir(&dir);
@@ -267,7 +277,7 @@ int main(void)
 
   //fresult = f_mount(&FatFs, "", 0);
 
-  FATFS fs;
+  /*FATFS fs;
      FRESULT res;
      char buff[256];
 
@@ -278,9 +288,14 @@ int main(void)
          res = scan_files(buff);
      }
 
-
+*/
   HAL_DAC_Start(&hdac,DAC_CHANNEL_1);
   HAL_ADC_Start_IT(&hadc1);
+
+  fresult = f_mount(&FatFs, "", 1);
+  fresult = f_open(&file, "wotakoi.wav", FA_READ|FA_OPEN_EXISTING);
+  f_read(&file, buf, 123200, &bytes_read);
+
   //read_song();
   /* USER CODE END 2 */
 
@@ -484,9 +499,9 @@ static void MX_TIM4_Init(void)
 
   /* USER CODE END TIM4_Init 1 */
   htim4.Instance = TIM4;
-  htim4.Init.Prescaler = 249;
+  htim4.Init.Prescaler = 4;
   htim4.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim4.Init.Period = 20;
+  htim4.Init.Period = 380;
   htim4.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim4.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
   if (HAL_TIM_Base_Init(&htim4) != HAL_OK)
