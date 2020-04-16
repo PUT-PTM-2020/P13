@@ -107,7 +107,7 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc){
 		  	else if(value>2876 && value <= 3285) indeks_glosnosci = 7;
 		  	else if(value>3285 && value <= 3692) indeks_glosnosci = 8;
 		  	else if(value>3692 && value <= 4095) indeks_glosnosci = 9;
-		  	//HAL_ADC_Start_IT(&hadc1);
+		  	HAL_ADC_Start_IT(&hadc1);
 }
 
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
