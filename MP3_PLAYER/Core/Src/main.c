@@ -75,7 +75,7 @@ uint16_t sizeSendUART = 2;
 uint8_t receiveUART[1];
 uint16_t sizeReceiveUART = 1;
 int i=352;
-
+int j=-1;
 int indeks_glosnosci = 0;
 double glosnosc_guziczki [10] = {0,0.25,0.5,1,2,4,8,10,15,20};
 int value = 0;
@@ -83,7 +83,8 @@ int value = 0;
 int stan = 0; //0 pauza 1 start
 
 char nazwa[11]={"wotakoi.wav"};
-uint8_t buf[123200];
+uint8_t buf[2000];
+uint8_t buf2[2000];
 
 /* USER CODE END PV */
 
@@ -137,6 +138,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
 		 //pause/start
 		 //na razie tylko startuje
 		 if(stan==1){
+
 		 HAL_TIM_Base_Start_IT(&htim4);
 		 stan = 0;
 		 }
@@ -166,9 +168,26 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 if(htim->Instance == TIM4)
 {
+	if(j==-1){
+			HAL_DAC_SetValue(&hdac,DAC_CHANNEL_1,DAC_ALIGN_12B_R,buf[i]*glosnosc_guziczki[indeks_glosnosci]);
+			i++;
+			if(i==2000)j=0;
+		}
 
-	HAL_DAC_SetValue(&hdac,DAC_CHANNEL_1,DAC_ALIGN_12B_R,buf[i]*glosnosc_guziczki[indeks_glosnosci]);
-	i++;
+	/*if(i==2000){
+		i=-1;
+		f_read(&file, buf, 2000, &bytes_read);
+	}*/
+	if(i==-1){
+		HAL_DAC_SetValue(&hdac,DAC_CHANNEL_1,DAC_ALIGN_12B_R,buf2[j]*glosnosc_guziczki[indeks_glosnosci]);
+		j++;
+		if(j==2000)i=0;
+	}
+	/*if(j==2000){
+		j=-1;
+		f_read(&file, buf2, 2000, &bytes_read);
+	}*/
+
 
 	//Utwór testowy 1
 	//HAL_DAC_SetValue(&hdac,DAC_CHANNEL_1,DAC_ALIGN_12B_R,rawAudio[i]*glosnosc_guziczki[indeks_glosnosci]);
@@ -294,8 +313,8 @@ int main(void)
 
   fresult = f_mount(&FatFs, "", 1);
   fresult = f_open(&file, "wotakoi.wav", FA_READ|FA_OPEN_EXISTING);
-  f_read(&file, buf, 123200, &bytes_read);
-
+  f_read(&file, buf, 2000, &bytes_read);
+  f_read(&file, buf2, 2000, &bytes_read);
   //read_song();
   /* USER CODE END 2 */
 
@@ -303,8 +322,16 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+	  if(i==2000){
+		  f_read(&file, buf, 2000, &bytes_read);
+	  		i=-1;
 
+	  	}
+	  if(j==2000){
+		  f_read(&file, buf2, 2000, &bytes_read);
+	  		j=-1;
 
+	  	}
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
