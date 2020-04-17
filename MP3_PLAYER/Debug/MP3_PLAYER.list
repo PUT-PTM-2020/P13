@@ -21,9 +21,9 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, ALLOC, LOAD, DATA
   8 .data         0000006c  20000000  080073e8  00020000  2**3
                   CONTENTS, ALLOC, LOAD, DATA
-  9 .bss          00005548  2000006c  08007454  0002006c  2**2
+  9 .bss          00015fb0  2000006c  08007454  0002006c  2**2
                   ALLOC
- 10 ._user_heap_stack 00000604  200055b4  08007454  000255b4  2**0
+ 10 ._user_heap_stack 00000604  2001601c  08007454  0002601c  2**0
                   ALLOC
  11 .ARM.attributes 00000030  00000000  00000000  0002006c  2**0
                   CONTENTS, READONLY
@@ -6035,29 +6035,29 @@ if(htim->Instance == TIM4)
  8003392:	3301      	adds	r3, #1
  8003394:	4a32      	ldr	r2, [pc, #200]	; (8003460 <HAL_TIM_PeriodElapsedCallback+0x12c>)
  8003396:	6013      	str	r3, [r2, #0]
-			if(i==10000)j=0;
+			if(i==44100)j=0;
  8003398:	4b31      	ldr	r3, [pc, #196]	; (8003460 <HAL_TIM_PeriodElapsedCallback+0x12c>)
  800339a:	681b      	ldr	r3, [r3, #0]
- 800339c:	f242 7210 	movw	r2, #10000	; 0x2710
+ 800339c:	f64a 4244 	movw	r2, #44100	; 0xac44
  80033a0:	4293      	cmp	r3, r2
  80033a2:	d102      	bne.n	80033aa <HAL_TIM_PeriodElapsedCallback+0x76>
  80033a4:	4b2d      	ldr	r3, [pc, #180]	; (800345c <HAL_TIM_PeriodElapsedCallback+0x128>)
  80033a6:	2200      	movs	r2, #0
  80033a8:	601a      	str	r2, [r3, #0]
 		}
-	if(i==10000){
+	if(i==44100){
  80033aa:	4b2d      	ldr	r3, [pc, #180]	; (8003460 <HAL_TIM_PeriodElapsedCallback+0x12c>)
  80033ac:	681b      	ldr	r3, [r3, #0]
- 80033ae:	f242 7210 	movw	r2, #10000	; 0x2710
+ 80033ae:	f64a 4244 	movw	r2, #44100	; 0xac44
  80033b2:	4293      	cmp	r3, r2
  80033b4:	d10a      	bne.n	80033cc <HAL_TIM_PeriodElapsedCallback+0x98>
 		i=-1;
  80033b6:	4b2a      	ldr	r3, [pc, #168]	; (8003460 <HAL_TIM_PeriodElapsedCallback+0x12c>)
  80033b8:	f04f 32ff 	mov.w	r2, #4294967295
  80033bc:	601a      	str	r2, [r3, #0]
-		f_read(&file, buf, 10000, &bytes_read);
+		f_read(&file, buf,44100, &bytes_read);
  80033be:	4b2d      	ldr	r3, [pc, #180]	; (8003474 <HAL_TIM_PeriodElapsedCallback+0x140>)
- 80033c0:	f242 7210 	movw	r2, #10000	; 0x2710
+ 80033c0:	f64a 4244 	movw	r2, #44100	; 0xac44
  80033c4:	4927      	ldr	r1, [pc, #156]	; (8003464 <HAL_TIM_PeriodElapsedCallback+0x130>)
  80033c6:	482c      	ldr	r0, [pc, #176]	; (8003478 <HAL_TIM_PeriodElapsedCallback+0x144>)
  80033c8:	f7ff fd5f 	bl	8002e8a <f_read>
@@ -6099,29 +6099,29 @@ if(htim->Instance == TIM4)
  8003416:	3301      	adds	r3, #1
  8003418:	4a10      	ldr	r2, [pc, #64]	; (800345c <HAL_TIM_PeriodElapsedCallback+0x128>)
  800341a:	6013      	str	r3, [r2, #0]
-		if(j==10000)i=0;
+		if(j==44100)i=0;
  800341c:	4b0f      	ldr	r3, [pc, #60]	; (800345c <HAL_TIM_PeriodElapsedCallback+0x128>)
  800341e:	681b      	ldr	r3, [r3, #0]
- 8003420:	f242 7210 	movw	r2, #10000	; 0x2710
+ 8003420:	f64a 4244 	movw	r2, #44100	; 0xac44
  8003424:	4293      	cmp	r3, r2
  8003426:	d102      	bne.n	800342e <HAL_TIM_PeriodElapsedCallback+0xfa>
  8003428:	4b0d      	ldr	r3, [pc, #52]	; (8003460 <HAL_TIM_PeriodElapsedCallback+0x12c>)
  800342a:	2200      	movs	r2, #0
  800342c:	601a      	str	r2, [r3, #0]
 	}
-	if(j==10000){
+	if(j==44100){
  800342e:	4b0b      	ldr	r3, [pc, #44]	; (800345c <HAL_TIM_PeriodElapsedCallback+0x128>)
  8003430:	681b      	ldr	r3, [r3, #0]
- 8003432:	f242 7210 	movw	r2, #10000	; 0x2710
+ 8003432:	f64a 4244 	movw	r2, #44100	; 0xac44
  8003436:	4293      	cmp	r3, r2
  8003438:	d10a      	bne.n	8003450 <HAL_TIM_PeriodElapsedCallback+0x11c>
 		j=-1;
  800343a:	4b08      	ldr	r3, [pc, #32]	; (800345c <HAL_TIM_PeriodElapsedCallback+0x128>)
  800343c:	f04f 32ff 	mov.w	r2, #4294967295
  8003440:	601a      	str	r2, [r3, #0]
-		f_read(&file, buf2,10000, &bytes_read);
+		f_read(&file, buf2,44100, &bytes_read);
  8003442:	4b0c      	ldr	r3, [pc, #48]	; (8003474 <HAL_TIM_PeriodElapsedCallback+0x140>)
- 8003444:	f242 7210 	movw	r2, #10000	; 0x2710
+ 8003444:	f64a 4244 	movw	r2, #44100	; 0xac44
  8003448:	490c      	ldr	r1, [pc, #48]	; (800347c <HAL_TIM_PeriodElapsedCallback+0x148>)
  800344a:	480b      	ldr	r0, [pc, #44]	; (8003478 <HAL_TIM_PeriodElapsedCallback+0x144>)
  800344c:	f7ff fd1d 	bl	8002e8a <f_read>
@@ -6138,10 +6138,10 @@ if(htim->Instance == TIM4)
  8003458:	40000800 	.word	0x40000800
  800345c:	20000008 	.word	0x20000008
  8003460:	20000004 	.word	0x20000004
- 8003464:	20002e9c 	.word	0x20002e9c
+ 8003464:	2000b3d0 	.word	0x2000b3d0
  8003468:	200002c4 	.word	0x200002c4
  800346c:	20000010 	.word	0x20000010
- 8003470:	20002d44 	.word	0x20002d44
+ 8003470:	2000b278 	.word	0x2000b278
  8003474:	20000630 	.word	0x20000630
  8003478:	200003c0 	.word	0x200003c0
  800347c:	20000634 	.word	0x20000634
@@ -6239,15 +6239,15 @@ int main(void)
  80034e8:	461a      	mov	r2, r3
  80034ea:	4b0c      	ldr	r3, [pc, #48]	; (800351c <main+0x88>)
  80034ec:	701a      	strb	r2, [r3, #0]
-  f_read(&file, buf, 10000, &bytes_read);
+  f_read(&file, buf, 44100, &bytes_read);
  80034ee:	4b0e      	ldr	r3, [pc, #56]	; (8003528 <main+0x94>)
- 80034f0:	f242 7210 	movw	r2, #10000	; 0x2710
+ 80034f0:	f64a 4244 	movw	r2, #44100	; 0xac44
  80034f4:	490d      	ldr	r1, [pc, #52]	; (800352c <main+0x98>)
  80034f6:	480b      	ldr	r0, [pc, #44]	; (8003524 <main+0x90>)
  80034f8:	f7ff fcc7 	bl	8002e8a <f_read>
-  f_read(&file, buf2, 10000, &bytes_read);
+  f_read(&file, buf2, 44100, &bytes_read);
  80034fc:	4b0a      	ldr	r3, [pc, #40]	; (8003528 <main+0x94>)
- 80034fe:	f242 7210 	movw	r2, #10000	; 0x2710
+ 80034fe:	f64a 4244 	movw	r2, #44100	; 0xac44
  8003502:	490b      	ldr	r1, [pc, #44]	; (8003530 <main+0x9c>)
  8003504:	4807      	ldr	r0, [pc, #28]	; (8003524 <main+0x90>)
  8003506:	f7ff fcc0 	bl	8002e8a <f_read>
@@ -6258,15 +6258,15 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
  800350a:	e7fe      	b.n	800350a <main+0x76>
- 800350c:	20002d44 	.word	0x20002d44
+ 800350c:	2000b278 	.word	0x2000b278
  8003510:	200005e8 	.word	0x200005e8
  8003514:	080073b0 	.word	0x080073b0
  8003518:	20000094 	.word	0x20000094
- 800351c:	200055ac 	.word	0x200055ac
+ 800351c:	20016014 	.word	0x20016014
  8003520:	080073b4 	.word	0x080073b4
  8003524:	200003c0 	.word	0x200003c0
  8003528:	20000630 	.word	0x20000630
- 800352c:	20002e9c 	.word	0x20002e9c
+ 800352c:	2000b3d0 	.word	0x2000b3d0
  8003530:	20000634 	.word	0x20000634
 
 08003534 <SystemClock_Config>:
@@ -6590,7 +6590,7 @@ static void MX_DAC_Init(void)
  80036f2:	46bd      	mov	sp, r7
  80036f4:	bd80      	pop	{r7, pc}
  80036f6:	bf00      	nop
- 80036f8:	20002d44 	.word	0x20002d44
+ 80036f8:	2000b278 	.word	0x2000b278
  80036fc:	40007400 	.word	0x40007400
 
 08003700 <MX_SPI3_Init>:
@@ -6867,7 +6867,7 @@ static void MX_TIM6_Init(void)
  8003862:	3708      	adds	r7, #8
  8003864:	46bd      	mov	sp, r7
  8003866:	bd80      	pop	{r7, pc}
- 8003868:	20002e58 	.word	0x20002e58
+ 8003868:	2000b38c 	.word	0x2000b38c
  800386c:	40001000 	.word	0x40001000
 
 08003870 <MX_USART3_UART_Init>:
@@ -8099,7 +8099,7 @@ void SystemInit(void)
  8003ed0:	20000000 	.word	0x20000000
  8003ed4:	2000006c 	.word	0x2000006c
  8003ed8:	2000006c 	.word	0x2000006c
- 8003edc:	200055b4 	.word	0x200055b4
+ 8003edc:	2001601c 	.word	0x2001601c
 
 08003ee0 <CAN1_RX0_IRQHandler>:
  8003ee0:	e7fe      	b.n	8003ee0 <CAN1_RX0_IRQHandler>
@@ -8256,7 +8256,7 @@ __weak void HAL_IncTick(void)
  8003fa4:	4770      	bx	lr
  8003fa6:	bf00      	nop
  8003fa8:	20000068 	.word	0x20000068
- 8003fac:	200055b0 	.word	0x200055b0
+ 8003fac:	20016018 	.word	0x20016018
 
 08003fb0 <HAL_GetTick>:
   * @note This function is declared as __weak to be overwritten in case of other 
@@ -8276,7 +8276,7 @@ __weak uint32_t HAL_GetTick(void)
  8003fbc:	f85d 7b04 	ldr.w	r7, [sp], #4
  8003fc0:	4770      	bx	lr
  8003fc2:	bf00      	nop
- 8003fc4:	200055b0 	.word	0x200055b0
+ 8003fc4:	20016018 	.word	0x20016018
 
 08003fc8 <HAL_Delay>:
   *       implementations in user file.
