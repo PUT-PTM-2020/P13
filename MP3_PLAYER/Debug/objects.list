@@ -1,4 +1,3 @@
-"Core/Src/audio.o"
 "Core/Src/diskio.o"
 "Core/Src/ff.o"
 "Core/Src/ffsystem.o"

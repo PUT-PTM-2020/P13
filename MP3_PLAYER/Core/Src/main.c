@@ -26,7 +26,7 @@
 #include "string.h"
 #include <stdio.h>
 #include"ff.h"
-extern const uint8_t rawAudio[123200];
+//extern const uint8_t rawAudio[123200];
 
 /* USER CODE END Includes */
 
@@ -53,6 +53,7 @@ SPI_HandleTypeDef hspi3;
 
 TIM_HandleTypeDef htim4;
 TIM_HandleTypeDef htim6;
+TIM_HandleTypeDef htim7;
 
 UART_HandleTypeDef huart3;
 
@@ -85,6 +86,7 @@ int stan = 0; //0 pauza 1 start
 char nazwa[11]={"wotakoi.wav"};
 uint8_t buf[44100];
 uint8_t buf2[44100];
+int aktualny_utwor = 0;
 
 /* USER CODE END PV */
 
@@ -97,6 +99,7 @@ static void MX_SPI3_Init(void);
 static void MX_USART3_UART_Init(void);
 static void MX_TIM6_Init(void);
 static void MX_TIM4_Init(void);
+static void MX_TIM7_Init(void);
 /* USER CODE BEGIN PFP */
 
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc){
@@ -140,6 +143,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
 		 if(stan==1){
 
 		 HAL_TIM_Base_Start_IT(&htim4);
+
 		 stan = 0;
 		 }
 		 else
@@ -168,30 +172,44 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 if(htim->Instance == TIM4)
 {
-	if(j==-1){
+	if(aktualny_utwor==0){
 			HAL_DAC_SetValue(&hdac,DAC_CHANNEL_1,DAC_ALIGN_12B_R,buf[i]*glosnosc_guziczki[indeks_glosnosci]);
 			i++;
-			if(i==44100)j=0;
+			if(i==44100){
+				aktualny_utwor = 1;
+				j=0;
+				HAL_TIM_Base_Start_IT(&htim7);
+			}
 		}
-	if(i==44100){
-		i=-1;
-		f_read(&file, buf,44100, &bytes_read);
-	}
-	if(i==-1){
+
+	if(aktualny_utwor==1){
 		HAL_DAC_SetValue(&hdac,DAC_CHANNEL_1,DAC_ALIGN_12B_R,buf2[j]*glosnosc_guziczki[indeks_glosnosci]);
 		j++;
-		if(j==44100)i=0;
+		if(j==44100){
+			aktualny_utwor = 0;
+			i=0;
+			HAL_TIM_Base_Start_IT(&htim7);
+		}
 	}
-	if(j==44100){
-		j=-1;
-		f_read(&file, buf2,44100, &bytes_read);
-	}
+
 
 
 	//Utwór testowy 1
 	//HAL_DAC_SetValue(&hdac,DAC_CHANNEL_1,DAC_ALIGN_12B_R,rawAudio[i]*glosnosc_guziczki[indeks_glosnosci]);
 	//i++;
 }
+
+if(htim->Instance == TIM7){
+	//PMW można spróbować do odczytu
+	if(aktualny_utwor==1){
+			f_read(&file, buf,44100, &bytes_read);
+		}
+	if(aktualny_utwor==0){
+			f_read(&file, buf2,44100, &bytes_read);
+			}
+	HAL_TIM_Base_Stop_IT(&htim7);
+}
+
 }
 
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef*huart)
@@ -291,6 +309,7 @@ int main(void)
   MX_USART3_UART_Init();
   MX_TIM6_Init();
   MX_TIM4_Init();
+  MX_TIM7_Init();
   /* USER CODE BEGIN 2 */
 
   //fresult = f_mount(&FatFs, "", 0);
@@ -586,6 +605,44 @@ static void MX_TIM6_Init(void)
   /* USER CODE BEGIN TIM6_Init 2 */
 
   /* USER CODE END TIM6_Init 2 */
+
+}
+
+/**
+  * @brief TIM7 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_TIM7_Init(void)
+{
+
+  /* USER CODE BEGIN TIM7_Init 0 */
+
+  /* USER CODE END TIM7_Init 0 */
+
+  TIM_MasterConfigTypeDef sMasterConfig = {0};
+
+  /* USER CODE BEGIN TIM7_Init 1 */
+
+  /* USER CODE END TIM7_Init 1 */
+  htim7.Instance = TIM7;
+  htim7.Init.Prescaler = 4;
+  htim7.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim7.Init.Period = 380;
+  htim7.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  if (HAL_TIM_Base_Init(&htim7) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+  if (HAL_TIMEx_MasterConfigSynchronization(&htim7, &sMasterConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN TIM7_Init 2 */
+
+  /* USER CODE END TIM7_Init 2 */
 
 }
 
