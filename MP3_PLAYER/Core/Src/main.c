@@ -83,8 +83,8 @@ int value = 0;
 int stan = 0; //0 pauza 1 start
 
 char nazwa[11]={"wotakoi.wav"};
-uint8_t buf[2000];
-uint8_t buf2[2000];
+uint8_t buf[10000];
+uint8_t buf2[10000];
 
 /* USER CODE END PV */
 
@@ -171,22 +171,21 @@ if(htim->Instance == TIM4)
 	if(j==-1){
 			HAL_DAC_SetValue(&hdac,DAC_CHANNEL_1,DAC_ALIGN_12B_R,buf[i]*glosnosc_guziczki[indeks_glosnosci]);
 			i++;
-			if(i==2000)j=0;
+			if(i==10000)j=0;
 		}
-
-	/*if(i==2000){
+	if(i==10000){
 		i=-1;
-		f_read(&file, buf, 2000, &bytes_read);
-	}*/
+		f_read(&file, buf, 10000, &bytes_read);
+	}
 	if(i==-1){
 		HAL_DAC_SetValue(&hdac,DAC_CHANNEL_1,DAC_ALIGN_12B_R,buf2[j]*glosnosc_guziczki[indeks_glosnosci]);
 		j++;
-		if(j==2000)i=0;
+		if(j==10000)i=0;
 	}
-	/*if(j==2000){
+	if(j==10000){
 		j=-1;
-		f_read(&file, buf2, 2000, &bytes_read);
-	}*/
+		f_read(&file, buf2,10000, &bytes_read);
+	}
 
 
 	//Utwór testowy 1
@@ -313,8 +312,8 @@ int main(void)
 
   fresult = f_mount(&FatFs, "", 1);
   fresult = f_open(&file, "wotakoi.wav", FA_READ|FA_OPEN_EXISTING);
-  f_read(&file, buf, 2000, &bytes_read);
-  f_read(&file, buf2, 2000, &bytes_read);
+  f_read(&file, buf, 10000, &bytes_read);
+  f_read(&file, buf2, 10000, &bytes_read);
   //read_song();
   /* USER CODE END 2 */
 
@@ -322,16 +321,16 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-	  if(i==2000){
-		  f_read(&file, buf, 2000, &bytes_read);
+	 /* if(i==512){
+		  f_read(&file, buf, 512, &bytes_read);
 	  		i=-1;
 
 	  	}
-	  if(j==2000){
-		  f_read(&file, buf2, 2000, &bytes_read);
+	  if(j==512){
+		  f_read(&file, buf2, 512, &bytes_read);
 	  		j=-1;
 
-	  	}
+	  	}*/
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
