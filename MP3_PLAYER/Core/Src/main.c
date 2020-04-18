@@ -84,8 +84,8 @@ int value = 0;
 int stan = 0; //0 pauza 1 start
 
 char nazwa[11]={"wotakoi.wav"};
-uint8_t buf[44100];
-uint8_t buf2[44100];
+volatile uint8_t buf[16000];
+volatile uint8_t buf2[16000];
 int aktualny_utwor = 0;
 
 /* USER CODE END PV */
@@ -138,6 +138,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
 			}
 	 if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_13) == GPIO_PIN_RESET){
 
+
 		 //pause/start
 		 //na razie tylko startuje
 		 if(stan==1){
@@ -173,22 +174,26 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 if(htim->Instance == TIM4)
 {
 	if(aktualny_utwor==0){
-			HAL_DAC_SetValue(&hdac,DAC_CHANNEL_1,DAC_ALIGN_12B_R,buf[i]*glosnosc_guziczki[indeks_glosnosci]);
+			HAL_DAC_SetValue(&hdac,DAC_CHANNEL_1,DAC_ALIGN_12B_R,buf[i]);
+
+			f_read(&file, &buf2[i],1, &bytes_read);
 			i++;
-			if(i==44100){
+			if(i==16000){
 				aktualny_utwor = 1;
 				j=0;
-				HAL_TIM_Base_Start_IT(&htim7);
+				//HAL_TIM_Base_Start_IT(&htim7);*glosnosc_guziczki[indeks_glosnosci]
 			}
 		}
 
 	if(aktualny_utwor==1){
-		HAL_DAC_SetValue(&hdac,DAC_CHANNEL_1,DAC_ALIGN_12B_R,buf2[j]*glosnosc_guziczki[indeks_glosnosci]);
+		HAL_DAC_SetValue(&hdac,DAC_CHANNEL_1,DAC_ALIGN_12B_R,buf2[j]);
+
+		f_read(&file, &buf[j],1, &bytes_read);
 		j++;
-		if(j==44100){
+		if(j==16000){
 			aktualny_utwor = 0;
 			i=0;
-			HAL_TIM_Base_Start_IT(&htim7);
+			//HAL_TIM_Base_Start_IT(&htim7);
 		}
 	}
 
@@ -199,16 +204,16 @@ if(htim->Instance == TIM4)
 	//i++;
 }
 
-if(htim->Instance == TIM7){
+/*if(htim->Instance == TIM7){
 	//PMW można spróbować do odczytu
 	if(aktualny_utwor==1){
-			f_read(&file, buf,44100, &bytes_read);
+			f_read(&file, &buf, 16000, &bytes_read);
 		}
 	if(aktualny_utwor==0){
-			f_read(&file, buf2,44100, &bytes_read);
+			f_read(&file, &buf2, 16000, &bytes_read);
 			}
 	HAL_TIM_Base_Stop_IT(&htim7);
-}
+}*/
 
 }
 
@@ -331,8 +336,8 @@ int main(void)
 
   fresult = f_mount(&FatFs, "", 1);
   fresult = f_open(&file, "wotakoi.wav", FA_READ|FA_OPEN_EXISTING);
-  f_read(&file, buf, 44100, &bytes_read);
-  f_read(&file, buf2, 44100, &bytes_read);
+  f_read(&file, &buf, 16000, &bytes_read);
+  f_read(&file, &buf2, 16000, &bytes_read);
   //read_song();
   /* USER CODE END 2 */
 
@@ -544,9 +549,9 @@ static void MX_TIM4_Init(void)
 
   /* USER CODE END TIM4_Init 1 */
   htim4.Instance = TIM4;
-  htim4.Init.Prescaler = 4;
+  htim4.Init.Prescaler = 104;
   htim4.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim4.Init.Period = 380;
+  htim4.Init.Period = 49;
   htim4.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim4.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
   if (HAL_TIM_Base_Init(&htim4) != HAL_OK)
