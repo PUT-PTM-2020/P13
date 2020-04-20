@@ -58,11 +58,10 @@ TIM_HandleTypeDef htim7;
 UART_HandleTypeDef huart3;
 
 /* USER CODE BEGIN PV */
-char buffer[256];      //bufor odczytu i zapisu
+
 static FATFS FatFs;    //uchwyt do urządzenia FatFs (dysku, karty SD...)
 FRESULT fresult;  //do przechowywania wyniku operacji na bibliotece
 
-char path[20];
 
 volatile FIL file;
 WORD bytes_written;
@@ -77,22 +76,21 @@ uint8_t receiveUART[1];
 uint16_t sizeReceiveUART = 1;
 int i=352;
 int j=-1;
-int indeks_glosnosci = 0;
+uint8_t indeks_glosnosci = 0;
 double glosnosc_guziczki [10] = {0,0.25,0.5,1,2,4,8,10,15,20};
-int value = 0;
+uint16_t value = 0;
 DIR dir;
-char a[20];
-char b[20];
-int otw=0;
+char utwor_poprzedni[20];
+char utwor[20];
+uint8_t otw=0;
 char buff[256];
 int stan = 0; //0 pauza 1 start
 
-int utwor=0;
+uint16 nr_utworu=0;
 
-char nazwa[11]={"wotakoi.wav"};
 volatile uint8_t buf[16000];
 volatile uint8_t buf2[16000];
-int aktualny_utwor = 0;
+uint8_t aktualny_bufor = 0;
 
 /* USER CODE END PV */
 
@@ -124,102 +122,36 @@ FRESULT res;
             		if (res != FR_OK || fno.fname[0] == 0) break;
             		printf("%s\n", fno.fname);
                 	z = strlen(fno.fname);
-                	utwor++;
+                	nr_utworu++;
             	}
             	while((fno.fname[z-1]!='V') || (fno.fname[z-2]!='A')|| (fno.fname[z-3]!='W')) ;
   	  	  		otw=1;
-  	  	  		sprintf(a,"%s",fno.fname);
+  	  	  		sprintf(utwor_poprzedni,"%s",fno.fname);
             	}
             }
 
       else{
+    	  sprintf(utwor_poprzedni, "%s", utwor);
     	  res = f_opendir(&dir, "/");
-           for(int i=0;i<=utwor;i++)
+           for(int i=0;i<=nr_utworu;i++)
            {
             		res = f_readdir(&dir, &fno);
             		if (res != FR_OK || fno.fname[0] == 0){
             			otw=0;
-            			utwor=0;
+            			nr_utworu=0;
             			break;
             		}
             		printf("%s\n", fno.fname);
                 	z = strlen(fno.fname);
-                	sprintf(b,"%s",fno.fname);
+                	sprintf(utwor,"%s",fno.fname);
             	}
 
-            	utwor++;
-            	sprintf(a,"%s",fno.fname);
-            	return;
+            	nr_utworu++;
+               	return;
             	}
 	}
 
 
-
-FRESULT scan_files (
-    char* path        /* Start node to be scanned (***also used as work area***) */
-)
-{
-    FRESULT res;
-    DIR dir;
-    UINT i;
-    UINT z;
-
-    static FILINFO fno;
-
-
-   if(otw==0){
-	   res = f_opendir(&dir, path);                       /* Open the directory */
-    if (res == FR_OK) {
-        for (;;) {
-
-            res = f_readdir(&dir, &fno);                   /* Read a directory item */
-            if (res != FR_OK || fno.fname[0] == 0) break;  /* Break on error or end of dir */
-            if (fno.fattrib & AM_DIR) {                    /* It is a directory */
-                i = strlen(path);
-                sprintf(&path[i], "/%s", fno.fname);
-                res = scan_files(path);                    /* Enter the directory */
-                if (res != FR_OK) break;
-                path[i] = 0;
-            } else {                                       /* It is a file. */
-                printf("%s/%s\n", path, fno.fname);
-                z = strlen(fno.fname);
-                if((fno.fname[z-1]=='V') && (fno.fname[z-2]=='A')&& (fno.fname[z-3]=='W') ){
-                	sprintf(a,"%s",fno.fname);
-                	otw++;
-                	return res;
-                	}
-
-            	}
-        	}
-    	}
-   }
-    else{
-    	for (;;) {
-
-    	            res = f_readdir(&dir, &fno);
-    	            if (res != FR_OK || fno.fname[0] == 0) break;  /* Break on error or end of dir */
-    	            if (fno.fattrib & AM_DIR) {                    /* It is a directory */
-    	                i = strlen(path);
-    	                sprintf(&path[i], "/%s", fno.fname);
-    	                res = scan_files(path);                    /* Enter the directory */
-    	                if (res != FR_OK) break;
-    	                path[i] = 0;
-    	            } else {                                       /* It is a file. */
-    	                printf("%s/%s\n", path, fno.fname);
-    	                z = strlen(fno.fname);
-    	                if((fno.fname[z-1]=='V') && (fno.fname[z-2]=='A')&& (fno.fname[z-3]=='W') ){
-    	                	sprintf(a,"%s",fno.fname);
-    	                	return res;
-    	                }
-
-    	            }
-    	        }
-
-
-    }
-   f_closedir(&dir);
-    return res;
-}
 
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc){
 
@@ -253,13 +185,22 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
 	 if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_12) == GPIO_PIN_RESET){
 			  		//prev song
 			  		HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_13);
+			  		HAL_TIM_Base_Stop_IT(&htim4);
+			  		f_close(&file);
+			  		fresult = f_open(&file, &utwor_poprzedni , FA_READ|FA_OPEN_EXISTING);
+			  		f_read(&file, &buf2,16000, &bytes_read);
+			  	    f_read(&file, &buf, 16000, &bytes_read);
+			  		HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_15);
+			  		i=352;
+			  		j=0;
+			  		HAL_TIM_Base_Start_IT(&htim4);
 
 			}
 	 if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_13) == GPIO_PIN_RESET){
 
 
 		 //pause/start
-		 //na razie tylko startuje
+
 		 if(stan==1){
 
 		 HAL_TIM_Base_Start_IT(&htim4);
@@ -277,15 +218,11 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
 		 	 HAL_TIM_Base_Stop_IT(&htim4);
 		 	 	 f_close(&file);
 		 	 	read_song();
-		 	   // if (fresult == FR_OK) {
-		 	      //     strcpy(buff, "/");
-		 	           //read_song();
-		 	           // fresult = scan_files(buff);
-		 	     //  }
-		 	       fresult = f_open(&file, &b , FA_READ|FA_OPEN_EXISTING);
+
+		 	       fresult = f_open(&file, &utwor , FA_READ|FA_OPEN_EXISTING);
 		 	       f_read(&file, &buf2,16000, &bytes_read);
 		 	       f_read(&file, &buf, 16000, &bytes_read);
-		 		 	HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_15);\
+		 		 	HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_15);
 		 		 	i=352;
 		 		 	j=0;
 		 		 	 HAL_TIM_Base_Start_IT(&htim4);
@@ -305,35 +242,30 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 if(htim->Instance == TIM4)
 {
-	if(aktualny_utwor==0){
+	if(aktualny_bufor==0){
 			HAL_DAC_SetValue(&hdac,DAC_CHANNEL_1,DAC_ALIGN_12B_R,buf[i]);
 
 			f_read(&file, &buf2[i],1, &bytes_read);
 			i++;
 			if(i==16000){
-				aktualny_utwor = 1;
+				aktualny_bufor = 1;
 				j=0;
 				//HAL_TIM_Base_Start_IT(&htim7);*glosnosc_guziczki[indeks_glosnosci]
 			}
 		}
 
-	if(aktualny_utwor==1){
+	if(aktualny_bufor==1){
 		HAL_DAC_SetValue(&hdac,DAC_CHANNEL_1,DAC_ALIGN_12B_R,buf2[j]);
 
 		f_read(&file, &buf[j],1, &bytes_read);
 		j++;
 		if(j==16000){
-			aktualny_utwor = 0;
+			aktualny_bufor = 0;
 			i=0;
 			//HAL_TIM_Base_Start_IT(&htim7);
 		}
 	}
 
-
-
-	//Utwór testowy 1
-	//HAL_DAC_SetValue(&hdac,DAC_CHANNEL_1,DAC_ALIGN_12B_R,rawAudio[i]*glosnosc_guziczki[indeks_glosnosci]);
-	//i++;
 }
 
 /*if(htim->Instance == TIM7){
@@ -405,68 +337,27 @@ int main(void)
   MX_TIM7_Init();
   /* USER CODE BEGIN 2 */
 
-  //fresult = f_mount(&FatFs, "", 0);
-
-
 
 
   HAL_DAC_Start(&hdac,DAC_CHANNEL_1);
   HAL_ADC_Start_IT(&hadc1);
 
-  FATFS fs;
-    FRESULT res;
 
 
-      res = f_mount(&fs, "", 1);
-     /* if (res == FR_OK) {
-          strcpy(buff, "/");
-           res = scan_files(buff);
-      }*/
+  	  fresult = f_mount(&fs, "", 1);
       read_song();
-      res = f_open(&file, &a , FA_READ|FA_OPEN_EXISTING);
+      fresult = f_open(&file, &a , FA_READ|FA_OPEN_EXISTING);
       f_read(&file, &buf2,16000, &bytes_read);
       f_read(&file, &buf, 16000, &bytes_read);
-      char u=0;
- // fresult = f_mount(&FatFs, "", 1);
- // fresult = f_opendir(&dir,"//SONGS");
-  //fresult = f_open(&file, "WOTAKOI.WAV", FA_READ|FA_OPEN_EXISTING);
- // f_read(&file, &buf, 16000, &bytes_read);
- // f_read(&file, &buf2, 16000, &bytes_read);
- // fresult = scan_files(buff);
-
-  /*FATFS fs;
-       FRESULT res;
-       char buff[256];
 
 
-       res = f_mount(&fs, "", 1);
-       if (res == FR_OK) {
-           strcpy(buff, "//SONGS");
-           res = song(buff);
-           res = song(buff);
-       }*/
-
-
-
-
-  //song(dir);
- // song(dir);
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
       while (1)
   {
-	 /* if(i==512){
-		  f_read(&file, buf, 512, &bytes_read);
-	  		i=-1;
 
-	  	}
-	  if(j==512){
-		  f_read(&file, buf2, 512, &bytes_read);
-	  		j=-1;
-
-	  	}*/
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
