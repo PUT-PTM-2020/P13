@@ -137,7 +137,11 @@ FRESULT res;
            for(int i=0;i<=utwor;i++)
            {
             		res = f_readdir(&dir, &fno);
-            		if (res != FR_OK || fno.fname[0] == 0) break;
+            		if (res != FR_OK || fno.fname[0] == 0){
+            			otw=0;
+            			utwor=0;
+            			break;
+            		}
             		printf("%s\n", fno.fname);
                 	z = strlen(fno.fname);
                 	sprintf(b,"%s",fno.fname);
@@ -145,6 +149,7 @@ FRESULT res;
 
             	utwor++;
             	sprintf(a,"%s",fno.fname);
+            	return;
             	}
 	}
 
@@ -272,11 +277,11 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
 		 	 HAL_TIM_Base_Stop_IT(&htim4);
 		 	 	 f_close(&file);
 		 	 	read_song();
-		 	    if (fresult == FR_OK) {
-		 	           strcpy(buff, "/");
-		 	           read_song();
+		 	   // if (fresult == FR_OK) {
+		 	      //     strcpy(buff, "/");
+		 	           //read_song();
 		 	           // fresult = scan_files(buff);
-		 	       }
+		 	     //  }
 		 	       fresult = f_open(&file, &b , FA_READ|FA_OPEN_EXISTING);
 		 	       f_read(&file, &buf2,16000, &bytes_read);
 		 	       f_read(&file, &buf, 16000, &bytes_read);
