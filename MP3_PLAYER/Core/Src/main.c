@@ -64,7 +64,7 @@ FRESULT fresult;  //do przechowywania wyniku operacji na bibliotece
 
 char path[20];
 
-FIL file;
+volatile FIL file;
 WORD bytes_written;
 
 
@@ -80,7 +80,7 @@ int j=-1;
 int indeks_glosnosci = 0;
 double glosnosc_guziczki [10] = {0,0.25,0.5,1,2,4,8,10,15,20};
 int value = 0;
-
+DIR dir;
 int stan = 0; //0 pauza 1 start
 
 char nazwa[11]={"wotakoi.wav"};
@@ -227,6 +227,26 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef*huart)
 			}
 	}
 
+FRESULT song(char* dira){
+  	FRESULT res;
+  	static FILINFO fno;
+  	int q=0;
+	char fil[100];
+	res = f_opendir(&dir, dira);
+  	if(res==FR_OK){
+  		res=f_readdir(&dir, &fno);
+  		 printf("%s\n", fno.fname);
+  	}
+  	sprintf(fil, "/%s", fno.fname);
+  		q = strlen(fil);
+
+
+
+  	q = strlen(fno.fname);
+
+  	return res;
+  }
+
 /*
 void read_song(){
 
@@ -240,14 +260,15 @@ void read_song(){
 	printf("%s/%s\n", path, fno.fname);
 }
 */
-
 FRESULT scan_files (
+
     char* path        /* Start node to be scanned (***also used as work area***) */
 )
 {
     FRESULT res;
     DIR dir;
     UINT i;
+    UINT z;
     static FILINFO fno;
 
 
@@ -264,6 +285,11 @@ FRESULT scan_files (
                 path[i] = 0;
             } else {                                       /* It is a file. */
                 printf("%s/%s\n", path, fno.fname);
+                z = strlen(fno.fname);
+                if((fno.fname[z-1]=='V') && (fno.fname[z-2]=='A')&& (fno.fname[z-3]=='W') ){
+                	res = f_open(&file, &fno.fname , FA_READ|FA_OPEN_EXISTING);
+                	return res;
+                }
 
             }
         }
@@ -319,26 +345,47 @@ int main(void)
 
   //fresult = f_mount(&FatFs, "", 0);
 
-  /*FATFS fs;
-     FRESULT res;
-     char buff[256];
 
 
-     res = f_mount(&fs, "", 1);
-     if (res == FR_OK) {
-         strcpy(buff, "/");
-         res = scan_files(buff);
-     }
 
-*/
   HAL_DAC_Start(&hdac,DAC_CHANNEL_1);
   HAL_ADC_Start_IT(&hadc1);
 
-  fresult = f_mount(&FatFs, "", 1);
-  fresult = f_open(&file, "wotakoi.wav", FA_READ|FA_OPEN_EXISTING);
-  f_read(&file, &buf, 16000, &bytes_read);
-  f_read(&file, &buf2, 16000, &bytes_read);
-  //read_song();
+  FATFS fs;
+    FRESULT res;
+      char buff[256];
+
+
+      res = f_mount(&fs, "", 1);
+      if (res == FR_OK) {
+          strcpy(buff, "//SONGS");
+          res = scan_files(buff);
+      }
+
+ // fresult = f_mount(&FatFs, "", 1);
+ // fresult = f_opendir(&dir,"//SONGS");
+  //fresult = f_open(&file, "WOTAKOI.WAV", FA_READ|FA_OPEN_EXISTING);
+ // f_read(&file, &buf, 16000, &bytes_read);
+ // f_read(&file, &buf2, 16000, &bytes_read);
+ // fresult = scan_files(buff);
+
+  /*FATFS fs;
+       FRESULT res;
+       char buff[256];
+
+
+       res = f_mount(&fs, "", 1);
+       if (res == FR_OK) {
+           strcpy(buff, "//SONGS");
+           res = song(buff);
+           res = song(buff);
+       }*/
+
+
+
+
+  //song(dir);
+ // song(dir);
   /* USER CODE END 2 */
 
   /* Infinite loop */
