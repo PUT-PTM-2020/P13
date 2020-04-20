@@ -260,7 +260,7 @@ void read_song(){
 	printf("%s/%s\n", path, fno.fname);
 }
 */
-FRESULT scan_files (
+char scan_files (
 
     char* path        /* Start node to be scanned (***also used as work area***) */
 )
@@ -287,8 +287,8 @@ FRESULT scan_files (
                 printf("%s/%s\n", path, fno.fname);
                 z = strlen(fno.fname);
                 if((fno.fname[z-1]=='V') && (fno.fname[z-2]=='A')&& (fno.fname[z-3]=='W') ){
-                	res = f_open(&file, &fno.fname , FA_READ|FA_OPEN_EXISTING);
-                	return res;
+                	res = f_open(&file, fno.fname , FA_READ|FA_OPEN_EXISTING);
+                	return fno.fname;
                 }
 
             }
@@ -296,7 +296,7 @@ FRESULT scan_files (
         f_closedir(&dir);
     }
 
-    return res;
+    return fno.fname;
 }
 /* USER CODE END PFP */
 
@@ -354,12 +354,12 @@ int main(void)
   FATFS fs;
     FRESULT res;
       char buff[256];
-
+      char title[100];
 
       res = f_mount(&fs, "", 1);
       if (res == FR_OK) {
           strcpy(buff, "//SONGS");
-          res = scan_files(buff);
+           sprintf(&title, "/%s", scan_files(buff));
       }
 
  // fresult = f_mount(&FatFs, "", 1);
