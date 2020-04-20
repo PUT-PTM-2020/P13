@@ -87,6 +87,8 @@ int otw=0;
 char buff[256];
 int stan = 0; //0 pauza 1 start
 
+int utwor=0;
+
 char nazwa[11]={"wotakoi.wav"};
 volatile uint8_t buf[16000];
 volatile uint8_t buf2[16000];
@@ -122,6 +124,7 @@ FRESULT res;
             		if (res != FR_OK || fno.fname[0] == 0) break;
             		printf("%s\n", fno.fname);
                 	z = strlen(fno.fname);
+                	utwor++;
             	}
             	while((fno.fname[z-1]!='V') || (fno.fname[z-2]!='A')|| (fno.fname[z-3]!='W')) ;
   	  	  		otw=1;
@@ -129,15 +132,16 @@ FRESULT res;
             	}
             }
             else{
-            do{
+            	for(int i=0;i<=utwor;i++)
+            	{
             		res = f_readdir(&dir, &fno);
             		if (res != FR_OK || fno.fname[0] == 0) break;
             		printf("%s\n", fno.fname);
                 	z = strlen(fno.fname);
                 	sprintf(b,"%s",fno.fname);
             	}
-            	while((fno.fname[z-1]!='V') || (fno.fname[z-2]!='A')|| (fno.fname[z-3]!='W')||a!=b) ;
 
+            	utwor++;
             	sprintf(a,"%s",fno.fname);
             	}
 	}
@@ -347,27 +351,6 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef*huart)
 
 			}
 	}
-
-FRESULT song(char* dira){
-  	FRESULT res;
-  	static FILINFO fno;
-  	int q=0;
-	char fil[100];
-	res = f_opendir(&dir, dira);
-  	if(res==FR_OK){
-  		res=f_readdir(&dir, &fno);
-  		 printf("%s\n", fno.fname);
-  	}
-  	sprintf(fil, "/%s", fno.fname);
-  		q = strlen(fil);
-
-
-
-  	q = strlen(fno.fname);
-
-  	return res;
-  }
-
 
 
 /* USER CODE END PFP */
