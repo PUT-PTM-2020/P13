@@ -131,9 +131,11 @@ FRESULT res;
   	  	  		sprintf(a,"%s",fno.fname);
             	}
             }
-            else{
-            	for(int i=0;i<=utwor;i++)
-            	{
+
+      else{
+    	  res = f_opendir(&dir, "/");
+           for(int i=0;i<=utwor;i++)
+           {
             		res = f_readdir(&dir, &fno);
             		if (res != FR_OK || fno.fname[0] == 0) break;
             		printf("%s\n", fno.fname);
