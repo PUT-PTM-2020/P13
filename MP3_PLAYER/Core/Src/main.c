@@ -81,6 +81,7 @@ int indeks_glosnosci = 0;
 double glosnosc_guziczki [10] = {0,0.25,0.5,1,2,4,8,10,15,20};
 int value = 0;
 DIR dir;
+char a[20];
 int stan = 0; //0 pauza 1 start
 
 char nazwa[11]={"wotakoi.wav"};
@@ -260,7 +261,7 @@ void read_song(){
 	printf("%s/%s\n", path, fno.fname);
 }
 */
-char scan_files (
+FRESULT scan_files (
 
     char* path        /* Start node to be scanned (***also used as work area***) */
 )
@@ -269,6 +270,7 @@ char scan_files (
     DIR dir;
     UINT i;
     UINT z;
+
     static FILINFO fno;
 
 
@@ -287,8 +289,8 @@ char scan_files (
                 printf("%s/%s\n", path, fno.fname);
                 z = strlen(fno.fname);
                 if((fno.fname[z-1]=='V') && (fno.fname[z-2]=='A')&& (fno.fname[z-3]=='W') ){
-                	res = f_open(&file, fno.fname , FA_READ|FA_OPEN_EXISTING);
-                	return fno.fname;
+                	sprintf(a,"%s",fno.fname);
+                	return res;
                 }
 
             }
@@ -296,7 +298,7 @@ char scan_files (
         f_closedir(&dir);
     }
 
-    return fno.fname;
+    return res;
 }
 /* USER CODE END PFP */
 
@@ -358,10 +360,13 @@ int main(void)
 
       res = f_mount(&fs, "", 1);
       if (res == FR_OK) {
-          strcpy(buff, "//SONGS");
-           sprintf(&title, "/%s", scan_files(buff));
+          strcpy(buff, "/");
+           res = scan_files(buff);
       }
-
+      res = f_open(&file, &a , FA_READ|FA_OPEN_EXISTING);
+      res =f_read(&file, &buf2,16000, &bytes_read);
+      f_read(&file, &buf, 16000, &bytes_read);
+      char u=0;
  // fresult = f_mount(&FatFs, "", 1);
  // fresult = f_opendir(&dir,"//SONGS");
   //fresult = f_open(&file, "WOTAKOI.WAV", FA_READ|FA_OPEN_EXISTING);
