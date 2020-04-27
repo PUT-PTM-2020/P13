@@ -1,7 +1,7 @@
 #include "lcd.h"
 
 uint8_t buf[1] = {0};
-extern I2C_HandleTypeDef hi2c1;
+//extern I2C_HandleTypeDef hi2c1;
 char strl[100];
 uint8_t portlcd; //
 
@@ -122,5 +122,5 @@ static inline void DELAY_MICRSECOND(__IO uint32_t micros)
 static void LCD_Write_I2C_LCD(uint8_t bt)
 {
 	buf[0] = bt;
-	HAL_I2C_Master_Transmit(&hi2c1, (uint16_t)0x4E, buf, 1, 1000);
+	//HAL_I2C_Master_Transmit(&hi2c1, (uint16_t)0x4E, buf, 1, 1000);
 }
