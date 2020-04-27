@@ -26,9 +26,7 @@
 #include "string.h"
 #include <stdio.h>
 #include"ff.h"
-#include "itoa.h"
-#include "stm32f4_delay.h"
-#include "stm32f4_HD44780.h"
+#include "lcd.h"
 //extern const uint8_t rawAudio[123200];
 
 /* USER CODE END Includes */
@@ -345,6 +343,7 @@ int main(void)
   /* USER CODE BEGIN 2 */
 
 
+LCD_Init();
 
   HAL_DAC_Start(&hdac,DAC_CHANNEL_1);
   HAL_ADC_Start_IT(&hadc1);
@@ -357,34 +356,8 @@ int main(void)
       f_read(&file, &buf2,16000, &bytes_read);
       f_read(&file, &buf, 16000, &bytes_read);
 
-
-  	int f = 3;
-  	char buf[20];
-  	char *buf1[10];
-
-  	//Inicjalizacja wyswietlacza, podajemy wartosc wierszy i kolumn
-  	HD44780_Init(16, 2);
-
-  	//Wypisanie stringu na wyswietlaczu
-  	HD44780_Puts(0, 0, "STM32F4 Discover");
-
-  	itoa(f, buf1, 10);
-  	HD44780_Puts(0, 1, buf1);
-
-  	Delayms(4000);
-
-  	HD44780_Clear();
-
-  	//Zapala kursor
-  	HD44780_CursorOn();
-  	HD44780_BlinkOn();
-
-  	//Wpisanie tekstu
-  	HD44780_Puts(0, 1, "16x2 HD44780 LCD");
-
-  	itoa(34243, buf1, 10);
-  	HD44780_Puts(0, 0, buf1);
-
+    LCD_Clear;
+  	LCD_Send_String("Hello World!");
 
   /* USER CODE END 2 */
 
