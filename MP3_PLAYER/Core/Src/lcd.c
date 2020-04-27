@@ -1,4 +1,14 @@
 #include "lcd.h"
+#include <stdio.h>
+#include "stm32f4xx.h"
+extern hi2c1;
+
+uint8_t bufer_i2c[1] = {0};
+void LCD_Write_I2C_LCD(uint8_t to_send)
+{
+   bufer_i2c[0] = to_send;
+   HAL_I2C_Master_Transmit(&hi2c1, (uint16_t)0x4E, bufer_i2c, sizeof(bufer_i2c), 1000);
+}
 
  void Priv_Send_Halfbyte(uint8_t c)
 {
@@ -23,12 +33,7 @@ void Priv_Send_Byte(uint8_t c, uint8_t mode)
         Priv_Send_Halfbyte(c);
 }
 
-uint8_t bufer_i2c[1] = {0};
-void LCD_Write_I2C_LCD(uint8_t to_send)
-{
-   bufer_i2c[0] = to_send;
-   HAL_I2C_Master_Transmit(&hi2c1, (uint16_t)0x4E, bufer_i2c, sizeof(bufer_i2c), 1000);
-}
+
 
 void LCD_Init(void)
 {

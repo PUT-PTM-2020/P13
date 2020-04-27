@@ -89,7 +89,7 @@ uint8_t otw=0;
 char buff[256];
 int stan = 0; //0 pauza 1 start
 
-uint16 nr_utworu=0;
+uint16_t nr_utworu=0;
 
 volatile uint8_t buf[16000];
 volatile uint8_t buf2[16000];
@@ -350,9 +350,9 @@ LCD_Init();
 
 
 
-  	  fresult = f_mount(&fs, "", 1);
+  	  fresult = f_mount(&FatFs, "", 1);
       read_song();
-      fresult = f_open(&file, &a , FA_READ|FA_OPEN_EXISTING);
+      fresult = f_open(&file, &utwor , FA_READ|FA_OPEN_EXISTING);
       f_read(&file, &buf2,16000, &bytes_read);
       f_read(&file, &buf, 16000, &bytes_read);
 

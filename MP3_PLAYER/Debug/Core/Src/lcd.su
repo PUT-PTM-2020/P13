@@ -1,0 +1,9 @@
+lcd.c:7:6:LCD_Write_I2C_LCD	24	static
+lcd.c:13:7:Priv_Send_Halfbyte	16	static
+lcd.c:24:6:Priv_Send_Byte	24	static
+lcd.c:38:6:LCD_Init	16	static
+lcd.c:64:6:LCD_Clear	8	static
+lcd.c:69:6:LCD_Send_Char	16	static
+lcd.c:73:6:LCD_Send_String	24	static
+lcd.c:82:6:LCD_Send_Str_Pos	16	static
+lcd.c:87:6:LCD_Set_Position	16	static

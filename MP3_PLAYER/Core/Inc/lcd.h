@@ -1,4 +1,7 @@
- #define Enable_SET()        LCD_Write_I2C_LCD(portlcd |= 0x04)
+
+#include <stdio.h>
+uint8_t portlcd;
+#define Enable_SET()        LCD_Write_I2C_LCD(portlcd |= 0x04)
 #define ENABLE_RESET()      LCD_Write_I2C_LCD(portlcd &=~ 0x04)
 #define RS_SET()            LCD_Write_I2C_LCD(portlcd |= 0x01)
 #define RS_RESET()          LCD_Write_I2C_LCD(portlcd &=~ 0x01)
