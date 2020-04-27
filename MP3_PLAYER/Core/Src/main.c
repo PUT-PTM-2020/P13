@@ -343,8 +343,6 @@ int main(void)
   /* USER CODE BEGIN 2 */
 
 
-LCD_Init();
-
   HAL_DAC_Start(&hdac,DAC_CHANNEL_1);
   HAL_ADC_Start_IT(&hadc1);
 
@@ -356,8 +354,21 @@ LCD_Init();
       f_read(&file, &buf2,16000, &bytes_read);
       f_read(&file, &buf, 16000, &bytes_read);
 
-    LCD_Clear;
-  	LCD_Send_String("Hello World!");
+      LCD_Init();
+      HAL_Delay(500);
+      //sprintf(str,"123142144");
+      //LCD_String(str);
+      LCD_Send_Str_Pos("STM32_Workswewes",0,0);
+      LCD_Set_Position(8, 1);
+      LCD_Send_Char('f');
+      LCD_Set_Position(8, 2);
+      LCD_Send_Char('x');
+      LCD_Set_Position(8, 3);
+      LCD_Send_Char('z');
+      LCD_Set_Position(8, 4);
+      LCD_Send_Char('p');
+      LCD_Set_Position(8, 0);
+
 
   /* USER CODE END 2 */
 
