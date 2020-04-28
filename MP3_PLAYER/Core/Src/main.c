@@ -26,7 +26,7 @@
 #include "string.h"
 #include <stdio.h>
 #include"ff.h"
-//#include "lcd.h"
+#include "lcd.h"
 //extern const uint8_t rawAudio[123200];
 
 /* USER CODE END Includes */
@@ -49,6 +49,8 @@
 ADC_HandleTypeDef hadc1;
 
 DAC_HandleTypeDef hdac;
+
+I2C_HandleTypeDef hi2c3;
 
 SPI_HandleTypeDef hspi3;
 
@@ -105,6 +107,7 @@ static void MX_USART3_UART_Init(void);
 static void MX_TIM6_Init(void);
 static void MX_TIM4_Init(void);
 static void MX_TIM7_Init(void);
+static void MX_I2C3_Init(void);
 /* USER CODE BEGIN PFP */
 
 void read_song(){
@@ -336,6 +339,7 @@ int main(void)
   MX_TIM6_Init();
   MX_TIM4_Init();
   MX_TIM7_Init();
+  MX_I2C3_Init();
   /* USER CODE BEGIN 2 */
 
 
@@ -350,7 +354,7 @@ int main(void)
       f_read(&file, &buf2,16000, &bytes_read);
       f_read(&file, &buf, 16000, &bytes_read);
 
-   /*   LCD_Init();
+   /  LCD_Init();
       HAL_Delay(500);
       //sprintf(str,"123142144");
       //LCD_String(str);
@@ -365,7 +369,7 @@ int main(void)
       LCD_Send_Char('p');
       LCD_Set_Position(8, 0);
 
-*/
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -507,6 +511,40 @@ static void MX_DAC_Init(void)
   /* USER CODE BEGIN DAC_Init 2 */
 
   /* USER CODE END DAC_Init 2 */
+
+}
+
+/**
+  * @brief I2C3 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_I2C3_Init(void)
+{
+
+  /* USER CODE BEGIN I2C3_Init 0 */
+
+  /* USER CODE END I2C3_Init 0 */
+
+  /* USER CODE BEGIN I2C3_Init 1 */
+
+  /* USER CODE END I2C3_Init 1 */
+  hi2c3.Instance = I2C3;
+  hi2c3.Init.ClockSpeed = 100000;
+  hi2c3.Init.DutyCycle = I2C_DUTYCYCLE_2;
+  hi2c3.Init.OwnAddress1 = 0;
+  hi2c3.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
+  hi2c3.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
+  hi2c3.Init.OwnAddress2 = 0;
+  hi2c3.Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
+  hi2c3.Init.NoStretchMode = I2C_NOSTRETCH_DISABLE;
+  if (HAL_I2C_Init(&hi2c3) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN I2C3_Init 2 */
+
+  /* USER CODE END I2C3_Init 2 */
 
 }
 
@@ -715,11 +753,7 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOH_CLK_ENABLE();
   __HAL_RCC_GPIOA_CLK_ENABLE();
   __HAL_RCC_GPIOB_CLK_ENABLE();
-  __HAL_RCC_GPIOD_CLK_ENABLE();
   __HAL_RCC_GPIOC_CLK_ENABLE();
-
-  /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOD, GPIO_PIN_12|GPIO_PIN_13|GPIO_PIN_14|GPIO_PIN_15, GPIO_PIN_RESET);
 
   /*Configure GPIO pin : PA0 */
   GPIO_InitStruct.Pin = GPIO_PIN_0;
@@ -734,13 +768,6 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING_FALLING;
   GPIO_InitStruct.Pull = GPIO_PULLUP;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
-
-  /*Configure GPIO pins : PD12 PD13 PD14 PD15 */
-  GPIO_InitStruct.Pin = GPIO_PIN_12|GPIO_PIN_13|GPIO_PIN_14|GPIO_PIN_15;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
 
   /* EXTI interrupt init*/
   HAL_NVIC_SetPriority(EXTI0_IRQn, 1, 0);
