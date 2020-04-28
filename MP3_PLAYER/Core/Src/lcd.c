@@ -1,126 +1,88 @@
+/* Put this in the src folder */
+
 #include "lcd.h"
+extern I2C_HandleTypeDef hi2c3;  // change your handler here accordingly
 
-uint8_t buf[1] = {0};
-extern I2C_HandleTypeDef hi2c3;
-char strl[100];
-uint8_t portlcd; //
+#define SLAVE_ADDRESS_LCD 0x4E // change this according to ur setup
 
-static void Priv_Send_Halfbyte(uint8_t c);
-static void Priv_Send_Byte(uint8_t c, uint8_t mode);
-static inline void DELAY_MICRSECOND(__IO uint32_t micros);
-static void LCD_Write_I2C_LCD(uint8_t bt);
-
-void LCD_Init(void)
+void lcd_send_cmd (char cmd)
 {
-	uint8_t i=0;
+  char data_u, data_l;
+	uint8_t data_t[4];
+	data_u = (cmd&0xf0);
+	data_l = ((cmd<<4)&0xf0);
+	data_t[0] = data_u|0x0C;  //en=1, rs=0
+	data_t[1] = data_u|0x08;  //en=0, rs=0
+	data_t[2] = data_l|0x0C;  //en=1, rs=0
+	data_t[3] = data_l|0x08;  //en=0, rs=0
+	HAL_I2C_Master_Transmit (&hi2c3, SLAVE_ADDRESS_LCD,(uint8_t *) data_t, 4, 100);
+}
 
-	//Wybranie trybu czterobitowego dane wysylane cztery razy
-	HAL_Delay(100);
-	for(i=0;i<3;i++)
+void lcd_send_data (char data)
+{
+	char data_u, data_l;
+	uint8_t data_t[4];
+	data_u = (data&0xf0);
+	data_l = ((data<<4)&0xf0);
+	data_t[0] = data_u|0x0D;  //en=1, rs=0
+	data_t[1] = data_u|0x09;  //en=0, rs=0
+	data_t[2] = data_l|0x0D;  //en=1, rs=0
+	data_t[3] = data_l|0x09;  //en=0, rs=0
+	HAL_I2C_Master_Transmit (&hi2c3, SLAVE_ADDRESS_LCD,(uint8_t *) data_t, 4, 100);
+}
+
+void lcd_clear (void)
+{
+	lcd_send_cmd (0x80);
+	for (int i=0; i<70; i++)
 	{
-		Priv_Send_Halfbyte(0x03);
-		HAL_Delay(45);
-	}
-
-	//Wlaczenie trybu czterobitowego
-	Priv_Send_Halfbyte(0x02);
-	HAL_Delay(100);
-
-	Priv_Send_Byte(HD44780_FUNCTION_SET | HD44780_FONT5x7 | HD44780_TWO_LINE | HD44780_4_BIT,0);
-	HAL_Delay(1);
-
-	Priv_Send_Byte(HD44780_DISPLAY_ONOFF | HD44780_DISPLAY_OFF,0);
-	HAL_Delay(1);
-
-	Priv_Send_Byte(HD44780_ENTRY_MODE | HD44780_EM_SHIFT_CURSOR | HD44780_EM_INCREMENT,0);
-	HAL_Delay(1);
-
-	Priv_Send_Byte(HD44780_DISPLAY_ONOFF | HD44780_DISPLAY_ON | HD44780_CURSOR_OFF | HD44780_CURSOR_NOBLINK,0);
-	HAL_Delay(1);
-
-	LED_SET();
-	WRITE_SET();
-
-	LCD_Clear();
-}
-
-void LCD_Clear(void)
-{
-	Priv_Send_Byte(0x01,0);
-	HAL_Delay(1000);
-}
-
-void LCD_Send_Char(char ch)
-{
-	Priv_Send_Byte(ch,1);
-}
-
-void LCD_Send_String(char* st)
-{
-	uint8_t i=0;
-	while(st[i] != 0)
-	{
-		Priv_Send_Byte(st[i],1);
-		i++;
+		lcd_send_data (' ');
 	}
 }
 
-void LCD_Send_Str_Pos(char* st, uint8_t x, uint8_t y)
+void lcd_put_cur(int row, int col)
 {
-	LCD_Set_Position(x,y);
-	LCD_Send_String(st);
-}
-
-void LCD_Set_Position(uint8_t x, uint8_t y)
-{
-    switch(y)
+    switch (row)
     {
         case 0:
-        	Priv_Send_Byte(x|0x80,0);
-            HAL_Delay(1);
+            col |= 0x80;
             break;
         case 1:
-        	Priv_Send_Byte((0x40+x)|0x80,0);
-            HAL_Delay(1);
+            col |= 0xC0;
             break;
     }
+
+    lcd_send_cmd (col);
 }
 
-static void Priv_Send_Halfbyte(uint8_t c)
+
+void lcd_init (void)
 {
-        c<<=4;
-        ENABLE_SET();
-        DELAY_MICRSECOND(50);
-        LCD_Write_I2C_LCD(portlcd|c);
-        ENABLE_RESET();
-        DELAY_MICRSECOND(50);
+	// 4 bit initialisation
+	HAL_Delay(50);  // wait for >40ms
+	lcd_send_cmd (0x30);
+	HAL_Delay(5);  // wait for >4.1ms
+	lcd_send_cmd (0x30);
+	HAL_Delay(1);  // wait for >100us
+	lcd_send_cmd (0x30);
+	HAL_Delay(10);
+	lcd_send_cmd (0x20);  // 4bit mode
+	HAL_Delay(10);
+
+  // dislay initialisation
+	lcd_send_cmd (0x28); // Function set --> DL=0 (4 bit mode), N = 1 (2 line display) F = 0 (5x8 characters)
+	HAL_Delay(1);
+	lcd_send_cmd (0x08); //Display on/off control --> D=0,C=0, B=0  ---> display off
+	HAL_Delay(1);
+	lcd_send_cmd (0x01);  // clear display
+	HAL_Delay(1);
+	HAL_Delay(1);
+	lcd_send_cmd (0x06); //Entry mode set --> I/D = 1 (increment cursor) & S = 0 (no shift)
+	HAL_Delay(1);
+	lcd_send_cmd (0x0C); //Display on/off control --> D = 1, C and B = 0. (Cursor and blink, last two bits)
 }
 
-static void Priv_Send_Byte(uint8_t c, uint8_t mode)
+void lcd_send_string (char *str)
 {
-    uint8_t hc=0;
-
-    if (mode==0)
-    {
-       	RS_RESET();
-    }
-    else
-    {
-      	RS_SET();
-    }
-    hc=c>>4;
-
-    Priv_Send_Halfbyte(hc);
-    Priv_Send_Halfbyte(c);
-}
-
-static inline void DELAY_MICRSECOND(__IO uint32_t micros)
-{
-	micros *= (SystemCoreClock / 1000000) / 5;
-}
-
-static void LCD_Write_I2C_LCD(uint8_t bt)
-{
-	buf[0] = bt;
-	HAL_I2C_Master_Transmit(&hi2c3, (uint16_t)0x4E, buf, 1, 1000);
+	while (str) lcd_send_data (str++);
 }

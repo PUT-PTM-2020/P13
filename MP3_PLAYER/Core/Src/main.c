@@ -58,6 +58,7 @@ TIM_HandleTypeDef htim4;
 TIM_HandleTypeDef htim6;
 TIM_HandleTypeDef htim7;
 
+UART_HandleTypeDef huart2;
 UART_HandleTypeDef huart3;
 
 /* USER CODE BEGIN PV */
@@ -108,6 +109,7 @@ static void MX_TIM6_Init(void);
 static void MX_TIM4_Init(void);
 static void MX_TIM7_Init(void);
 static void MX_I2C3_Init(void);
+static void MX_USART2_UART_Init(void);
 /* USER CODE BEGIN PFP */
 
 void read_song(){
@@ -287,11 +289,13 @@ if(htim->Instance == TIM4)
 
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef*huart)
 	{
-		if(huart->Instance == USART3)
+		if(huart->Instance == USART2)
 			{
 
-			// tutaj umieszczamy kod wykonywany w zależności od odebranej inf
-
+			HAL_UART_Receive_IT(&huart2, receiveUART, sizeReceiveUART);
+			if(receiveUART[0]==79){
+				HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_13);
+			}
 			}
 	}
 
@@ -340,13 +344,14 @@ int main(void)
   MX_TIM4_Init();
   MX_TIM7_Init();
   MX_I2C3_Init();
+  MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
 
 
   HAL_DAC_Start(&hdac,DAC_CHANNEL_1);
   HAL_ADC_Start_IT(&hadc1);
 
-
+  HAL_UART_Transmit_IT(&huart2, sendUART, sizeSendUART);
 
   	  fresult = f_mount(&FatFs, "", 1);
       read_song();
@@ -354,21 +359,19 @@ int main(void)
       f_read(&file, &buf2,16000, &bytes_read);
       f_read(&file, &buf, 16000, &bytes_read);
 
-   /  LCD_Init();
-      HAL_Delay(500);
-      //sprintf(str,"123142144");
-      //LCD_String(str);
-      LCD_Send_Str_Pos("STM32_Workswewes",0,0);
-      LCD_Set_Position(8, 1);
-      LCD_Send_Char('f');
-      LCD_Set_Position(8, 2);
-      LCD_Send_Char('x');
-      LCD_Set_Position(8, 3);
-      LCD_Send_Char('z');
-      LCD_Set_Position(8, 4);
-      LCD_Send_Char('p');
-      LCD_Set_Position(8, 0);
+    /*  lcd_init ();
 
+        lcd_send_string ("HELLO WORLD");
+
+        HAL_Delay(1000);
+
+        lcd_put_cur(1, 0);
+
+        lcd_send_string("from CTECH");
+
+        HAL_Delay(2000);
+
+*/
 
   /* USER CODE END 2 */
 
@@ -376,7 +379,7 @@ int main(void)
   /* USER CODE BEGIN WHILE */
       while (1)
   {
-
+    	  HAL_UART_Receive_IT(&huart2, receiveUART, sizeReceiveUART);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -708,6 +711,39 @@ static void MX_TIM7_Init(void)
 }
 
 /**
+  * @brief USART2 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_USART2_UART_Init(void)
+{
+
+  /* USER CODE BEGIN USART2_Init 0 */
+
+  /* USER CODE END USART2_Init 0 */
+
+  /* USER CODE BEGIN USART2_Init 1 */
+
+  /* USER CODE END USART2_Init 1 */
+  huart2.Instance = USART2;
+  huart2.Init.BaudRate = 9600;
+  huart2.Init.WordLength = UART_WORDLENGTH_8B;
+  huart2.Init.StopBits = UART_STOPBITS_1;
+  huart2.Init.Parity = UART_PARITY_NONE;
+  huart2.Init.Mode = UART_MODE_TX_RX;
+  huart2.Init.HwFlowCtl = UART_HWCONTROL_NONE;
+  huart2.Init.OverSampling = UART_OVERSAMPLING_16;
+  if (HAL_UART_Init(&huart2) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN USART2_Init 2 */
+
+  /* USER CODE END USART2_Init 2 */
+
+}
+
+/**
   * @brief USART3 Initialization Function
   * @param None
   * @retval None
@@ -753,7 +789,11 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOH_CLK_ENABLE();
   __HAL_RCC_GPIOA_CLK_ENABLE();
   __HAL_RCC_GPIOB_CLK_ENABLE();
+  __HAL_RCC_GPIOD_CLK_ENABLE();
   __HAL_RCC_GPIOC_CLK_ENABLE();
+
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(GPIOD, GPIO_PIN_12|GPIO_PIN_13|GPIO_PIN_14|GPIO_PIN_15, GPIO_PIN_RESET);
 
   /*Configure GPIO pin : PA0 */
   GPIO_InitStruct.Pin = GPIO_PIN_0;
@@ -768,6 +808,13 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING_FALLING;
   GPIO_InitStruct.Pull = GPIO_PULLUP;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
+  /*Configure GPIO pins : PD12 PD13 PD14 PD15 */
+  GPIO_InitStruct.Pin = GPIO_PIN_12|GPIO_PIN_13|GPIO_PIN_14|GPIO_PIN_15;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
 
   /* EXTI interrupt init*/
   HAL_NVIC_SetPriority(EXTI0_IRQn, 1, 0);
