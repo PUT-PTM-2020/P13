@@ -379,7 +379,7 @@ int main(void)
   /* USER CODE BEGIN WHILE */
       while (1)
   {
-    	  HAL_UART_Receive_IT(&huart2, receiveUART, sizeReceiveUART);
+    	 // HAL_UART_Receive_IT(&huart2, receiveUART, sizeReceiveUART);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
