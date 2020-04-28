@@ -195,6 +195,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
 			  		i=352;
 			  		j=0;
 			  		HAL_TIM_Base_Start_IT(&htim4);
+			  		//kom
 
 			}
 	 if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_13) == GPIO_PIN_RESET){
