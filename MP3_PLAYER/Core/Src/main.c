@@ -359,19 +359,7 @@ int main(void)
       f_read(&file, &buf2,16000, &bytes_read);
       f_read(&file, &buf, 16000, &bytes_read);
 
-    /*  lcd_init ();
-
-        lcd_send_string ("HELLO WORLD");
-
-        HAL_Delay(1000);
-
-        lcd_put_cur(1, 0);
-
-        lcd_send_string("from CTECH");
-
-        HAL_Delay(2000);
-
-*/
+      lcd_init();
 
   /* USER CODE END 2 */
 
@@ -379,7 +367,16 @@ int main(void)
   /* USER CODE BEGIN WHILE */
       while (1)
   {
-    	 // HAL_UART_Receive_IT(&huart2, receiveUART, sizeReceiveUART);
+    	 for(int i;i<5; i++)
+		 {
+		 lcd_send_cmd(0x1C);
+		 HAL_Delay(1000);
+		 }
+		 for(int i;i<5; i++)
+		 {
+		 lcd_send_cmd(0x18);
+		 HAL_Delay(1000);
+		 }
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
