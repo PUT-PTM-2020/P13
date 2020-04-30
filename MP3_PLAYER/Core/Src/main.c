@@ -367,16 +367,7 @@ int main(void)
   /* USER CODE BEGIN WHILE */
       while (1)
   {
-    	 for(int i;i<5; i++)
-		 {
-		 lcd_send_cmd(0x1C);
-		 HAL_Delay(1000);
-		 }
-		 for(int i;i<5; i++)
-		 {
-		 lcd_send_cmd(0x18);
-		 HAL_Delay(1000);
-		 }
+    	lcd_send_string("Hello");
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
