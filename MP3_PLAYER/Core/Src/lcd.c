@@ -3,7 +3,7 @@
 #include "lcd.h"
 extern I2C_HandleTypeDef hi2c3;  // change your handler here accordingly
 
-#define SLAVE_ADDRESS_LCD 0x4E // change this according to ur setup
+#define SLAVE_ADDRESS_LCD 0x4e // change this according to ur setup
 
 
 

@@ -359,7 +359,7 @@ int main(void)
       f_read(&file, &buf, 16000, &bytes_read);
 
       lcd_init();
-
+    //  lcd_send_string("Hello");
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -367,8 +367,8 @@ int main(void)
       while (1)
   {
 
-    //lcd_send_string("Hello");
-    lcd_send_cmd(0x80 | 0x03);
+    lcd_send_string("Hello");
+    //lcd_send_cmd(0x80 | 0x03);
     lcd_send_string("Space Invaders");
     /* USER CODE END WHILE */
 
