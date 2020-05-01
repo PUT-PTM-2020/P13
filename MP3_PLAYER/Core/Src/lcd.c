@@ -23,7 +23,7 @@ void lcd_send_cmd(char cmd) {
 	data_t[1] = data_u | 0x08;  //en=0, rs=0
 	data_t[2] = data_l | 0x0C;  //en=1, rs=0
 	data_t[3] = data_l | 0x08;  //en=0, rs=0
-	HAL_I2C_Master_Transmit(&hi2c3, SLAVE_ADDRESS_LCD, (uint8_t*) data_t, 4,
+	HAL_StatusTypeDef status = HAL_I2C_Master_Transmit(&hi2c3, SLAVE_ADDRESS_LCD, (uint8_t*) data_t, 4,
 			100);
 }
 
@@ -36,7 +36,7 @@ void lcd_send_data(char data) {
 	data_t[1] = data_u | 0x09;  //en=0, rs=1
 	data_t[2] = data_l | 0x0D;  //en=1, rs=1
 	data_t[3] = data_l | 0x09;  //en=0, rs=1
-	HAL_I2C_Master_Transmit(&hi2c3, SLAVE_ADDRESS_LCD, (uint8_t*) data_t, 4,
+	HAL_StatusTypeDef status = HAL_I2C_Master_Transmit(&hi2c3, SLAVE_ADDRESS_LCD, (uint8_t*) data_t, 4,
 			100);
 }
 

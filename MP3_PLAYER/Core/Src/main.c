@@ -354,7 +354,7 @@ int main(void)
       //f_read(&file, &buf2,16000, &bytes_read);
       f_read(&file, &buf, 16000, &bytes_read);
 
-     // lcd_init();
+      lcd_init();
 
   /* USER CODE END 2 */
 
@@ -363,7 +363,7 @@ int main(void)
       while (1)
   {
 
-    	//lcd_send_string("Hello");
+    lcd_send_string("Hello");
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
