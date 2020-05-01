@@ -70,7 +70,6 @@ FRESULT fresult;  //do przechowywania wyniku operacji na bibliotece
 volatile FIL file;
 WORD bytes_written;
 
-
 WORD bytes_read;           //liczba odczytanych byte
 
 
@@ -84,9 +83,9 @@ uint8_t indeks_glosnosci = 0;
 double glosnosc_guziczki [10] = {0,0.25,0.5,1,2,4,8,10,15,20};
 uint16_t value = 0;
 DIR dir;
-char utwor_poprzedni[20];
+
 char utwor[20];
-uint8_t otw=0;
+
 char buff[256];
 int stan = 0; //0 pauza 1 start
 
@@ -131,33 +130,14 @@ FRESULT res;
                 	z = strlen(fno.fname);
                 	i++;
             	}
-            	while(i<=nr_utworu || (fno.fname[z-1]!='V') || (fno.fname[z-2]!='A')|| (fno.fname[z-3]!='W')) ;
-  	  	  		otw=1;
-  	  	  		sprintf(utwor_poprzedni,"%s",fno.fname);
+            	while(i<=nr_utworu || (fno.fname[z-1]!='V') || (fno.fname[z-2]!='A')|| (fno.fname[z-3]!='W'));
+  	  	  		sprintf(utwor,"%s",fno.fname);
   	  	  		nr_utworu=i-1;
             	}
 
-
-      /*
-    	  sprintf(utwor_poprzedni, "%s", utwor);
-    	  res = f_opendir(&dir, "/");
-           for(int i=0;i<=nr_utworu;i++)
-           {
-            		res = f_readdir(&dir, &fno);
-            		if (res != FR_OK || fno.fname[0] == 0){
-            			otw=0;
-            			nr_utworu=0;
-            			break;
-            		}
-            		printf("%s\n", fno.fname);
-                	z = strlen(fno.fname);
-                	sprintf(utwor,"%s",fno.fname);
-            	}
-*/
-
                	return;
-            	}
-	//}
+}
+
 
 
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc){
@@ -359,7 +339,7 @@ int main(void)
 
   	  fresult = f_mount(&FatFs, "", 1);
       read_song();
-      fresult = f_open(&file, &utwor_poprzedni , FA_READ|FA_OPEN_EXISTING|FA_OPEN_ALWAYS);
+      fresult = f_open(&file, &utwor , FA_READ|FA_OPEN_EXISTING|FA_OPEN_ALWAYS);
       f_read(&file, &buf2,16000, &bytes_read);
       f_read(&file, &buf, 16000, &bytes_read);
 
