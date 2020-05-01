@@ -120,6 +120,50 @@ FRESULT res;
     UINT z;
     static FILINFO fno;
 
+  /*  if(otw==0){
+		res = f_opendir(&dir, "/");
+    	if (res == FR_OK) {
+  	  	  	do{
+            		res = f_readdir(&dir, &fno);
+            		if (res != FR_OK || fno.fname[0] == 0) break;
+            		printf("%s\n", fno.fname);
+                	z = strlen(fno.fname);
+            	}
+            	while((fno.fname[z-1]!='V') || (fno.fname[z-2]!='A')|| (fno.fname[z-3]!='W')) ;
+  	  	  		otw=1;
+  	  	  		sprintf(utwor_poprzedni,"%s",fno.fname);
+            	}
+            }
+
+      else{*/
+    	  sprintf(utwor_poprzedni, "%s", utwor);
+    	  res = f_opendir(&dir, "/");
+           for(int i=0;i<=nr_utworu;i++)
+           {
+            		res = f_readdir(&dir, &fno);
+            		if (res != FR_OK || fno.fname[0] == 0){
+            			otw=0;
+            			nr_utworu=0;
+            			break;
+            		}
+            		printf("%s\n", fno.fname);
+                	z = strlen(fno.fname);
+                	sprintf(utwor,"%s",fno.fname);
+            	}
+
+
+               	return;
+            	}
+	//}
+
+void back_song(){
+
+FRESULT res;
+    DIR dir;
+    UINT i;
+    UINT z;
+    static FILINFO fno;
+
     if(otw==0){
 		res = f_opendir(&dir, "/");
     	if (res == FR_OK) {
@@ -158,7 +202,6 @@ FRESULT res;
 	}
 
 
-
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc){
 
 
@@ -190,17 +233,19 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
 
 	 if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_12) == GPIO_PIN_RESET){
 			  		//prev song
-			  		//HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_13);
-			  		HAL_TIM_Base_Stop_IT(&htim4);
-			  		f_close(&file);
-			  		fresult = f_open(&file, &utwor_poprzedni , FA_READ|FA_OPEN_EXISTING);
-			  		f_read(&file, &buf2,16000, &bytes_read);
-			  	    f_read(&file, &buf, 16000, &bytes_read);
-			  		//HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_15);
-			  		i=352;
-			  		j=0;
-			  		HAL_TIM_Base_Start_IT(&htim4);
-			  		//kom
+		 HAL_TIM_Base_Stop_IT(&htim4);
+				 	 	 f_close(&file);
+				 		nr_utworu--;
+				 	 	read_song();
+
+				 	       fresult = f_open(&file, &utwor , FA_READ|FA_OPEN_EXISTING);
+				 	       f_read(&file, &buf2,16000, &bytes_read);
+				 	       f_read(&file, &buf, 16000, &bytes_read);
+				 		 //	HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_15);
+				 		 	i=352;
+				 		 	j=0;
+				 		 	 HAL_TIM_Base_Start_IT(&htim4);
+
 
 			}
 	 if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_13) == GPIO_PIN_RESET){
@@ -224,6 +269,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
 	 if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_14) == GPIO_PIN_RESET){
 		 	 HAL_TIM_Base_Stop_IT(&htim4);
 		 	 	 f_close(&file);
+		 		nr_utworu++;
 		 	 	read_song();
 
 		 	       fresult = f_open(&file, &utwor , FA_READ|FA_OPEN_EXISTING);
