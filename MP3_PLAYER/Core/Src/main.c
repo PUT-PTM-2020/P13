@@ -116,11 +116,12 @@ void read_song(){
 
 FRESULT res;
     DIR dir;
-    UINT i;
+    UINT i=0;
     UINT z;
+
     static FILINFO fno;
 
-  /*  if(otw==0){
+
 		res = f_opendir(&dir, "/");
     	if (res == FR_OK) {
   	  	  	do{
@@ -128,14 +129,16 @@ FRESULT res;
             		if (res != FR_OK || fno.fname[0] == 0) break;
             		printf("%s\n", fno.fname);
                 	z = strlen(fno.fname);
+                	i++;
             	}
-            	while((fno.fname[z-1]!='V') || (fno.fname[z-2]!='A')|| (fno.fname[z-3]!='W')) ;
+            	while(i<=nr_utworu || (fno.fname[z-1]!='V') || (fno.fname[z-2]!='A')|| (fno.fname[z-3]!='W')) ;
   	  	  		otw=1;
   	  	  		sprintf(utwor_poprzedni,"%s",fno.fname);
+  	  	  		nr_utworu=i-1;
             	}
-            }
 
-      else{*/
+
+      /*
     	  sprintf(utwor_poprzedni, "%s", utwor);
     	  res = f_opendir(&dir, "/");
            for(int i=0;i<=nr_utworu;i++)
@@ -150,56 +153,11 @@ FRESULT res;
                 	z = strlen(fno.fname);
                 	sprintf(utwor,"%s",fno.fname);
             	}
-
+*/
 
                	return;
             	}
 	//}
-
-void back_song(){
-
-FRESULT res;
-    DIR dir;
-    UINT i;
-    UINT z;
-    static FILINFO fno;
-
-    if(otw==0){
-		res = f_opendir(&dir, "/");
-    	if (res == FR_OK) {
-  	  	  	do{
-            		res = f_readdir(&dir, &fno);
-            		if (res != FR_OK || fno.fname[0] == 0) break;
-            		printf("%s\n", fno.fname);
-                	z = strlen(fno.fname);
-                	nr_utworu++;
-            	}
-            	while((fno.fname[z-1]!='V') || (fno.fname[z-2]!='A')|| (fno.fname[z-3]!='W')) ;
-  	  	  		otw=1;
-  	  	  		sprintf(utwor_poprzedni,"%s",fno.fname);
-            	}
-            }
-
-      else{
-    	  sprintf(utwor_poprzedni, "%s", utwor);
-    	  res = f_opendir(&dir, "/");
-           for(int i=0;i<=nr_utworu;i++)
-           {
-            		res = f_readdir(&dir, &fno);
-            		if (res != FR_OK || fno.fname[0] == 0){
-            			otw=0;
-            			nr_utworu=0;
-            			break;
-            		}
-            		printf("%s\n", fno.fname);
-                	z = strlen(fno.fname);
-                	sprintf(utwor,"%s",fno.fname);
-            	}
-
-            	nr_utworu++;
-               	return;
-            	}
-	}
 
 
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc){
