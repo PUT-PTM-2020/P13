@@ -84,6 +84,7 @@ double glosnosc_guziczki [10] = {0,0.25,0.5,1,2,4,8,10,15,20};
 uint16_t value = 0;
 DIR dir;
 
+uint8_t eof;
 char utwor[20];
 
 char buff[256];
@@ -234,8 +235,8 @@ if(htim->Instance == TIM4)
 {
 	if(aktualny_bufor==0){
 			HAL_DAC_SetValue(&hdac,DAC_CHANNEL_1,DAC_ALIGN_12B_R,buf[i]);
-			fresult=f_eof(&file);
-			if(fresult !=0) f_read(&file, &buf2[i],1, &bytes_read);
+			eof=f_eof(&file);
+			if(eof !=0) f_read(&file, &buf2[i],1, &bytes_read);
 			else {nr_utworu++, read_song();}
 			i++;
 			if(i==16000){
@@ -247,8 +248,8 @@ if(htim->Instance == TIM4)
 
 	if(aktualny_bufor==1){
 		HAL_DAC_SetValue(&hdac,DAC_CHANNEL_1,DAC_ALIGN_12B_R,buf2[j]);
-		fresult=f_eof(&file);
-		if(fresult !=0) f_read(&file, &buf[j],1, &bytes_read);
+		eof=f_eof(&file);
+		if(eof !=0) f_read(&file, &buf[j],1, &bytes_read);
 		else {nr_utworu++, read_song();}
 		j++;
 		if(j==16000){
