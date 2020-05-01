@@ -27,7 +27,10 @@
 #include <stdio.h>
 #include"ff.h"
 #include "lcd.h"
-//extern const uint8_t rawAudio[123200];
+#include "lcdcommands.h"
+#include "lcdchars.h"
+
+#include "stdbool.h"
 
 /* USER CODE END Includes */
 
@@ -364,6 +367,8 @@ int main(void)
   {
 
     lcd_send_string("Hello");
+    lcd_send_cmd(0x80 | 0x03);
+    lcd_send_string("Space Invaders");
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
