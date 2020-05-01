@@ -77,7 +77,7 @@ uint8_t sendUART[2] = {65, 'B'};
 uint16_t sizeSendUART = 2;
 uint8_t receiveUART[1];
 uint16_t sizeReceiveUART = 1;
-int i=352;
+int i=0;
 int j=-1;
 uint8_t indeks_glosnosci = 0;
 double glosnosc_guziczki [10] = {0,0.25,0.5,1,2,4,8,10,15,20};
@@ -88,7 +88,7 @@ uint8_t eof;
 char utwor[20];
 
 char buff[256];
-int stan = 0; //0 pauza 1 start
+int stan = 1; //0 pauza 1 start
 
 uint16_t nr_utworu=0;
 
@@ -134,12 +134,41 @@ FRESULT res;
             	while(i<=nr_utworu || (fno.fname[z-1]!='V') || (fno.fname[z-2]!='A')|| (fno.fname[z-3]!='W'));
   	  	  		sprintf(utwor,"%s",fno.fname);
   	  	  		nr_utworu=i-1;
+  	  	  		if(nr_utworu==0)read_song();
             	}
 
                	return;
 }
 
+void next(){
+	 HAL_TIM_Base_Stop_IT(&htim4);
+			 	 	 f_close(&file);
+			 		nr_utworu++;
+			 	 	read_song();
 
+			 	       fresult = f_open(&file, &utwor , FA_READ|FA_OPEN_EXISTING);
+			 	      // f_read(&file, &buf2,16000, &bytes_read);
+			 	       f_read(&file, &buf, 16000, &bytes_read);
+			 		 //	HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_15);
+			 		 	i=0;
+			 		 	j=0;
+			 		 	 HAL_TIM_Base_Start_IT(&htim4);
+}
+
+void prev(){
+	 HAL_TIM_Base_Stop_IT(&htim4);
+				 	 	 f_close(&file);
+				 		nr_utworu--;
+				 	 	read_song();
+
+				 	       fresult = f_open(&file, &utwor , FA_READ|FA_OPEN_EXISTING);
+				 	      // f_read(&file, &buf2,16000, &bytes_read);
+				 	       f_read(&file, &buf, 16000, &bytes_read);
+				 		 //	HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_15);
+				 		 	i=0;
+				 		 	j=0;
+				 		 	 HAL_TIM_Base_Start_IT(&htim4);
+}
 
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc){
 
@@ -172,17 +201,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
 
 	 if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_12) == GPIO_PIN_RESET){
 			  		//prev song
-		 HAL_TIM_Base_Stop_IT(&htim4);
-				 	 	 f_close(&file);
-				 		nr_utworu--;
-				 	 	read_song();
-				 	       fresult = f_open(&file, &utwor , FA_READ|FA_OPEN_EXISTING);
-				 	       f_read(&file, &buf2,16000, &bytes_read);
-				 	       f_read(&file, &buf, 16000, &bytes_read);
-				 		 //	HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_15);
-				 		 	i=352;
-				 		 	j=0;
-				 		 	 HAL_TIM_Base_Start_IT(&htim4);
+		prev();
 
 
 			}
@@ -205,18 +224,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
 
 	 		}
 	 if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_14) == GPIO_PIN_RESET){
-		 	 HAL_TIM_Base_Stop_IT(&htim4);
-		 	 	 f_close(&file);
-		 		nr_utworu++;
-		 	 	read_song();
-
-		 	       fresult = f_open(&file, &utwor , FA_READ|FA_OPEN_EXISTING);
-		 	       f_read(&file, &buf2,16000, &bytes_read);
-		 	       f_read(&file, &buf, 16000, &bytes_read);
-		 		 //	HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_15);
-		 		 	i=352;
-		 		 	j=0;
-		 		 	 HAL_TIM_Base_Start_IT(&htim4);
+		 	next();
 
 		 	}
 	 if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_15) == GPIO_PIN_RESET){
@@ -236,8 +244,8 @@ if(htim->Instance == TIM4)
 	if(aktualny_bufor==0){
 			HAL_DAC_SetValue(&hdac,DAC_CHANNEL_1,DAC_ALIGN_12B_R,buf[i]);
 			eof=f_eof(&file);
-			if(eof !=0) f_read(&file, &buf2[i],1, &bytes_read);
-			else {nr_utworu++, read_song();}
+			if(eof ==0) f_read(&file, &buf2[i],1, &bytes_read);
+			else {next();}
 			i++;
 			if(i==16000){
 				aktualny_bufor = 1;
@@ -249,8 +257,8 @@ if(htim->Instance == TIM4)
 	if(aktualny_bufor==1){
 		HAL_DAC_SetValue(&hdac,DAC_CHANNEL_1,DAC_ALIGN_12B_R,buf2[j]);
 		eof=f_eof(&file);
-		if(eof !=0) f_read(&file, &buf[j],1, &bytes_read);
-		else {nr_utworu++, read_song();}
+		if(eof ==0) f_read(&file, &buf[j],1, &bytes_read);
+		else {next();}
 		j++;
 		if(j==16000){
 			aktualny_bufor = 0;
@@ -343,10 +351,10 @@ int main(void)
   	  fresult = f_mount(&FatFs, "", 1);
       read_song();
       fresult = f_open(&file, &utwor , FA_READ|FA_OPEN_EXISTING|FA_OPEN_ALWAYS);
-      f_read(&file, &buf2,16000, &bytes_read);
+      //f_read(&file, &buf2,16000, &bytes_read);
       f_read(&file, &buf, 16000, &bytes_read);
 
-      lcd_init();
+     // lcd_init();
 
   /* USER CODE END 2 */
 
@@ -354,7 +362,8 @@ int main(void)
   /* USER CODE BEGIN WHILE */
       while (1)
   {
-    	lcd_send_string("Hello");
+
+    	//lcd_send_string("Hello");
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
