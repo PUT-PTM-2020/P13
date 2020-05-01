@@ -125,7 +125,7 @@ FRESULT res;
     	if (res == FR_OK) {
   	  	  	do{
             		res = f_readdir(&dir, &fno);
-            		if (res != FR_OK || fno.fname[0] == 0) break;
+            		if (res != FR_OK || fno.fname[0] == 0) {i=1; break;}
             		printf("%s\n", fno.fname);
                 	z = strlen(fno.fname);
                 	i++;
@@ -175,7 +175,6 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
 				 	 	 f_close(&file);
 				 		nr_utworu--;
 				 	 	read_song();
-
 				 	       fresult = f_open(&file, &utwor , FA_READ|FA_OPEN_EXISTING);
 				 	       f_read(&file, &buf2,16000, &bytes_read);
 				 	       f_read(&file, &buf, 16000, &bytes_read);
@@ -235,7 +234,9 @@ if(htim->Instance == TIM4)
 {
 	if(aktualny_bufor==0){
 			HAL_DAC_SetValue(&hdac,DAC_CHANNEL_1,DAC_ALIGN_12B_R,buf[i]);
-			fresult=f_read(&file, &buf2[i],1, &bytes_read);
+			fresult=f_eof(&file);
+			if(fresult !=0) f_read(&file, &buf2[i],1, &bytes_read);
+			else {nr_utworu++, read_song();}
 			i++;
 			if(i==16000){
 				aktualny_bufor = 1;
@@ -246,8 +247,9 @@ if(htim->Instance == TIM4)
 
 	if(aktualny_bufor==1){
 		HAL_DAC_SetValue(&hdac,DAC_CHANNEL_1,DAC_ALIGN_12B_R,buf2[j]);
-
-		f_read(&file, &buf[j],1, &bytes_read);
+		fresult=f_eof(&file);
+		if(fresult !=0) f_read(&file, &buf[j],1, &bytes_read);
+		else {nr_utworu++, read_song();}
 		j++;
 		if(j==16000){
 			aktualny_bufor = 0;
