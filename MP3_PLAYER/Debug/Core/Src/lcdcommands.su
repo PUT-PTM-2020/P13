@@ -1,0 +1,5 @@
+lcdcommands.c:3:6:lcd_clear_1	8	static
+lcdcommands.c:8:6:lcd_clear_2	8	static
+lcdcommands.c:13:6:lcd_clear_3	8	static
+lcdcommands.c:18:6:lcd_clear_4	8	static
+lcdcommands.c:23:6:lcd_cls	8	static

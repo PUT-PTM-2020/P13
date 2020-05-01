@@ -244,6 +244,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 if(htim->Instance == TIM4)
 {
+
 	if(aktualny_bufor==0){
 			HAL_DAC_SetValue(&hdac,DAC_CHANNEL_1,DAC_ALIGN_12B_R,buf[i]);
 			eof=f_eof(&file);
@@ -366,7 +367,7 @@ int main(void)
       while (1)
   {
 
-    lcd_send_string("Hello");
+    //lcd_send_string("Hello");
     lcd_send_cmd(0x80 | 0x03);
     lcd_send_string("Space Invaders");
     /* USER CODE END WHILE */

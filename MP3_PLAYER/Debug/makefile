@@ -32,6 +32,9 @@ default.size.stdout \
 OBJDUMP_LIST += \
 MP3_PLAYER.list \
 
+OBJCOPY_BIN += \
+MP3_PLAYER.bin \
+
 
 # All Target
 all: MP3_PLAYER.elf secondary-outputs
@@ -52,12 +55,17 @@ MP3_PLAYER.list: $(EXECUTABLES)
 	@echo 'Finished building: $@'
 	@echo ' '
 
+MP3_PLAYER.bin: $(EXECUTABLES)
+	arm-none-eabi-objcopy  -O binary $(EXECUTABLES) "MP3_PLAYER.bin"
+	@echo 'Finished building: $@'
+	@echo ' '
+
 # Other Targets
 clean:
 	-$(RM) *
 	-@echo ' '
 
-secondary-outputs: $(SIZE_OUTPUT) $(OBJDUMP_LIST)
+secondary-outputs: $(SIZE_OUTPUT) $(OBJDUMP_LIST) $(OBJCOPY_BIN)
 
 .PHONY: all clean dependents
 .SECONDARY:
