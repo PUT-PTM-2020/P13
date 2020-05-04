@@ -56,7 +56,6 @@ DAC_HandleTypeDef hdac;
 I2C_HandleTypeDef hi2c3;
 
 SPI_HandleTypeDef hspi3;
-DMA_HandleTypeDef hdma_spi3_rx;
 
 TIM_HandleTypeDef htim4;
 TIM_HandleTypeDef htim6;
@@ -96,15 +95,15 @@ int stan = 1; //0 pauza 1 start
 
 uint16_t nr_utworu=0;
 
-volatile uint8_t buf[16000];
-volatile uint8_t buf2[16000];
+volatile uint8_t buf[22047];
+volatile uint8_t buf2[22047];
 uint8_t aktualny_bufor = 0;
 
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
-static void MX_DMA_Init(void);
+static void MX_GPIO_Init(void);
 static void MX_ADC1_Init(void);
 static void MX_DAC_Init(void);
 static void MX_SPI3_Init(void);
@@ -152,7 +151,7 @@ void next(){
 
 			 	       fresult = f_open(&file, &utwor , FA_READ|FA_OPEN_EXISTING);
 			 	      // f_read(&file, &buf2,16000, &bytes_read);
-			 	       f_read(&file, &buf, 16000, &bytes_read);
+			 	       f_read(&file, &buf, 22047, &bytes_read);
 			 		 //	HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_15);
 			 		 	i=0;
 			 		 	j=0;
@@ -167,7 +166,7 @@ void prev(){
 
 				 	       fresult = f_open(&file, &utwor , FA_READ|FA_OPEN_EXISTING);
 				 	      // f_read(&file, &buf2,16000, &bytes_read);
-				 	       f_read(&file, &buf, 16000, &bytes_read);
+				 	       f_read(&file, &buf, 22047, &bytes_read);
 				 		 //	HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_15);
 				 		 	i=0;
 				 		 	j=0;
@@ -217,7 +216,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
 		 if(stan==1){
 
 		 HAL_TIM_Base_Start_IT(&htim4);
-
+		 HAL_TIM_Base_Start_IT(&htim7);
 		 stan = 0;
 		 }
 		 else
@@ -248,11 +247,11 @@ if(htim->Instance == TIM4)
 
 	if(aktualny_bufor==0){
 			HAL_DAC_SetValue(&hdac,DAC_CHANNEL_1,DAC_ALIGN_12B_R,buf[i]);
-			eof=f_eof(&file);
-			if(eof ==0) f_read(&file, &buf2[i],1, &bytes_read);
-			else {next();}
+			//eof=f_eof(&file);
+		//	if(eof ==0) f_read(&file, &buf2[i],1, &bytes_read);
+			//else {next();}
 			i++;
-			if(i==16000){
+			if(i==22047){
 				aktualny_bufor = 1;
 				j=0;
 				//HAL_TIM_Base_Start_IT(&htim7);*glosnosc_guziczki[indeks_glosnosci]
@@ -261,11 +260,11 @@ if(htim->Instance == TIM4)
 
 	if(aktualny_bufor==1){
 		HAL_DAC_SetValue(&hdac,DAC_CHANNEL_1,DAC_ALIGN_12B_R,buf2[j]);
-		eof=f_eof(&file);
-		if(eof ==0) f_read(&file, &buf[j],1, &bytes_read);
-		else {next();}
+	//	eof=f_eof(&file);
+	//	if(eof ==0) f_read(&file, &buf[j],1, &bytes_read);
+	//	else {next();}
 		j++;
-		if(j==16000){
+		if(j==22047){
 			aktualny_bufor = 0;
 			i=0;
 			//HAL_TIM_Base_Start_IT(&htim7);
@@ -274,16 +273,16 @@ if(htim->Instance == TIM4)
 
 }
 
-/*if(htim->Instance == TIM7){
+if(htim->Instance == TIM7){
 	//PMW można spróbować do odczytu
-	if(aktualny_utwor==1){
-			f_read(&file, &buf, 16000, &bytes_read);
+	if(aktualny_bufor==1){
+			f_read(&file, &buf,22047 , &bytes_read);
 		}
-	if(aktualny_utwor==0){
-			f_read(&file, &buf2, 16000, &bytes_read);
+	if(aktualny_bufor==0){
+			f_read(&file, &buf2, 22047, &bytes_read);
 			}
 	HAL_TIM_Base_Stop_IT(&htim7);
-}*/
+}
 
 }
 
@@ -299,9 +298,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef*huart)
 			}
 	}
 
-void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef *hspi3){
-	  f_read(&file, &buf, 62000, &bytes_read);
-}
+
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -337,7 +334,7 @@ int main(void)
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
-  MX_DMA_Init();
+  MX_GPIO_Init();
   MX_ADC1_Init();
   MX_DAC_Init();
   MX_SPI3_Init();
@@ -358,16 +355,14 @@ int main(void)
   	  fresult = f_mount(&FatFs, "", 1);
       read_song();
       fresult = f_open(&file, &utwor , FA_READ|FA_OPEN_EXISTING|FA_OPEN_ALWAYS);
-<<<<<<< HEAD
 
-      HAL_SPI_Receive_DMA(&hspi3, buf, 62000);
 
       //f_read(&file, &buf, 62000, &bytes_read);
       //f_read(&file, &buf2,62000, &bytes_read);
-=======
-      //f_read(&file, &buf2,16000, &bytes_read);
-      f_read(&file, &buf, 16000, &bytes_read);
->>>>>>> parent of e9239e0... Zmiana prescalera i perioda
+
+
+      f_read(&file, &buf, 22047, &bytes_read);
+    //  f_read(&file, &buf2,22047, &bytes_read);
 
       lcd_init();
     //  lcd_send_string("Hello");
@@ -609,9 +604,9 @@ static void MX_TIM4_Init(void)
 
   /* USER CODE END TIM4_Init 1 */
   htim4.Instance = TIM4;
-  htim4.Init.Prescaler = 104;
+  htim4.Init.Prescaler = 14;
   htim4.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim4.Init.Period = 49;
+  htim4.Init.Period = 126;
   htim4.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim4.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
   if (HAL_TIM_Base_Init(&htim4) != HAL_OK)
@@ -691,9 +686,9 @@ static void MX_TIM7_Init(void)
 
   /* USER CODE END TIM7_Init 1 */
   htim7.Instance = TIM7;
-  htim7.Init.Prescaler = 4;
+  htim7.Init.Prescaler = 7;
   htim7.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim7.Init.Period = 380;
+  htim7.Init.Period = 118;
   htim7.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
   if (HAL_TIM_Base_Init(&htim7) != HAL_OK)
   {
@@ -777,28 +772,13 @@ static void MX_USART3_UART_Init(void)
 
 }
 
-/** 
-  * Enable DMA controller clock
-  */
-static void MX_DMA_Init(void) 
-{
-
-  /* DMA controller clock enable */
-  __HAL_RCC_DMA1_CLK_ENABLE();
-
-  /* DMA interrupt init */
-  /* DMA1_Stream0_IRQn interrupt configuration */
-  HAL_NVIC_SetPriority(DMA1_Stream0_IRQn, 0, 0);
-  HAL_NVIC_EnableIRQ(DMA1_Stream0_IRQn);
-
-}
-
 /**
   * @brief GPIO Initialization Function
   * @param None
   * @retval None
   */
-static void MX_GPIO_Init(void){
+static void MX_GPIO_Init(void)
+{
   GPIO_InitTypeDef GPIO_InitStruct = {0};
 
   /* GPIO Ports Clock Enable */
