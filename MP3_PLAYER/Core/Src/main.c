@@ -56,6 +56,7 @@ DAC_HandleTypeDef hdac;
 I2C_HandleTypeDef hi2c3;
 
 SPI_HandleTypeDef hspi3;
+DMA_HandleTypeDef hdma_spi3_rx;
 
 TIM_HandleTypeDef htim4;
 TIM_HandleTypeDef htim6;
@@ -103,7 +104,7 @@ uint8_t aktualny_bufor = 0;
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
-static void MX_GPIO_Init(void);
+static void MX_DMA_Init(void);
 static void MX_ADC1_Init(void);
 static void MX_DAC_Init(void);
 static void MX_SPI3_Init(void);
@@ -298,7 +299,9 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef*huart)
 			}
 	}
 
-
+void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef *hspi){
+	while(1)  f_read(&file, &buf, 62000, &bytes_read);
+}
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -334,7 +337,7 @@ int main(void)
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
-  MX_GPIO_Init();
+  MX_DMA_Init();
   MX_ADC1_Init();
   MX_DAC_Init();
   MX_SPI3_Init();
@@ -345,7 +348,7 @@ int main(void)
   MX_I2C3_Init();
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
-
+HAL_SPI_Receive_DMA(hspi, buf, 62000);
 
   HAL_DAC_Start(&hdac,DAC_CHANNEL_1);
   HAL_ADC_Start_IT(&hadc1);
@@ -356,8 +359,10 @@ int main(void)
       read_song();
       fresult = f_open(&file, &utwor , FA_READ|FA_OPEN_EXISTING|FA_OPEN_ALWAYS);
 
-      f_read(&file, &buf, 62000, &bytes_read);
-      f_read(&file, &buf2,62000, &bytes_read);
+      HAL_SPI_Receive_DMA(hspi, buf, 62000);
+
+      //f_read(&file, &buf, 62000, &bytes_read);
+      //f_read(&file, &buf2,62000, &bytes_read);
 
       lcd_init();
     //  lcd_send_string("Hello");
@@ -599,9 +604,9 @@ static void MX_TIM4_Init(void)
 
   /* USER CODE END TIM4_Init 1 */
   htim4.Instance = TIM4;
-  htim4.Init.Prescaler = 126;
+  htim4.Init.Prescaler = 104;
   htim4.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim4.Init.Period = 14;
+  htim4.Init.Period = 49;
   htim4.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim4.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
   if (HAL_TIM_Base_Init(&htim4) != HAL_OK)
@@ -767,12 +772,27 @@ static void MX_USART3_UART_Init(void)
 
 }
 
+/** 
+  * Enable DMA controller clock
+  */
+static void MX_DMA_Init(void) 
+{
+
+  /* DMA controller clock enable */
+  __HAL_RCC_DMA1_CLK_ENABLE();
+
+  /* DMA interrupt init */
+  /* DMA1_Stream0_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(DMA1_Stream0_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(DMA1_Stream0_IRQn);
+
+}
+
 /**
   * @brief GPIO Initialization Function
   * @param None
   * @retval None
   */
-static void MX_GPIO_Init(void)
 {
   GPIO_InitTypeDef GPIO_InitStruct = {0};
 
