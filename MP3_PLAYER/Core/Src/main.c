@@ -299,8 +299,8 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef*huart)
 			}
 	}
 
-void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef *hspi){
-	while(1)  f_read(&file, &buf, 62000, &bytes_read);
+void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef *hspi3){
+	  f_read(&file, &buf, 62000, &bytes_read);
 }
 /* USER CODE END PFP */
 
@@ -348,7 +348,7 @@ int main(void)
   MX_I2C3_Init();
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
-HAL_SPI_Receive_DMA(hspi, buf, 62000);
+
 
   HAL_DAC_Start(&hdac,DAC_CHANNEL_1);
   HAL_ADC_Start_IT(&hadc1);
@@ -359,7 +359,7 @@ HAL_SPI_Receive_DMA(hspi, buf, 62000);
       read_song();
       fresult = f_open(&file, &utwor , FA_READ|FA_OPEN_EXISTING|FA_OPEN_ALWAYS);
 
-      HAL_SPI_Receive_DMA(hspi, buf, 62000);
+      HAL_SPI_Receive_DMA(&hspi3, buf, 62000);
 
       //f_read(&file, &buf, 62000, &bytes_read);
       //f_read(&file, &buf2,62000, &bytes_read);
@@ -604,9 +604,9 @@ static void MX_TIM4_Init(void)
 
   /* USER CODE END TIM4_Init 1 */
   htim4.Instance = TIM4;
-  htim4.Init.Prescaler = 104;
+  htim4.Init.Prescaler = 126;
   htim4.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim4.Init.Period = 49;
+  htim4.Init.Period = 14;
   htim4.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim4.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
   if (HAL_TIM_Base_Init(&htim4) != HAL_OK)
@@ -793,7 +793,7 @@ static void MX_DMA_Init(void)
   * @param None
   * @retval None
   */
-{
+static void MX_GPIO_Init(void){
   GPIO_InitTypeDef GPIO_InitStruct = {0};
 
   /* GPIO Ports Clock Enable */
