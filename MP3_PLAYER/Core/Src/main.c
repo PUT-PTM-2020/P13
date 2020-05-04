@@ -144,33 +144,27 @@ FRESULT res;
 }
 
 void next(){
-	 HAL_TIM_Base_Stop_IT(&htim4);
-			 	 	 f_close(&file);
-			 		nr_utworu++;
-			 	 	read_song();
-
-			 	       fresult = f_open(&file, &utwor , FA_READ|FA_OPEN_EXISTING);
-			 	      // f_read(&file, &buf2,16000, &bytes_read);
-			 	       f_read(&file, &buf, 22047, &bytes_read);
-			 		 //	HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_15);
-			 		 	i=0;
-			 		 	j=0;
-			 		 	 HAL_TIM_Base_Start_IT(&htim4);
+	HAL_TIM_Base_Stop_IT(&htim4);
+	f_close(&file);
+	nr_utworu++;
+	read_song();
+	fresult = f_open(&file, &utwor , FA_READ|FA_OPEN_EXISTING);
+	f_read(&file, &buf, 22047, &bytes_read);
+	i=0;
+	j=0;
+	 HAL_TIM_Base_Start_IT(&htim4);
 }
 
 void prev(){
-	 HAL_TIM_Base_Stop_IT(&htim4);
-				 	 	 f_close(&file);
-				 		nr_utworu--;
-				 	 	read_song();
-
-				 	       fresult = f_open(&file, &utwor , FA_READ|FA_OPEN_EXISTING);
-				 	      // f_read(&file, &buf2,16000, &bytes_read);
-				 	       f_read(&file, &buf, 22047, &bytes_read);
-				 		 //	HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_15);
-				 		 	i=0;
-				 		 	j=0;
-				 		 	 HAL_TIM_Base_Start_IT(&htim4);
+	HAL_TIM_Base_Stop_IT(&htim4);
+	f_close(&file);
+	nr_utworu--;
+	read_song();
+	fresult = f_open(&file, &utwor , FA_READ|FA_OPEN_EXISTING);
+	f_read(&file, &buf, 22047, &bytes_read);
+	i=0;
+	j=0;
+	HAL_TIM_Base_Start_IT(&htim4);
 }
 
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc){
