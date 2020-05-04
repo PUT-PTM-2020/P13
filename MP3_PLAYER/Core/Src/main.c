@@ -95,8 +95,8 @@ int stan = 1; //0 pauza 1 start
 
 uint16_t nr_utworu=0;
 
-volatile uint8_t buf[16000];
-volatile uint8_t buf2[16000];
+volatile uint8_t buf[62000];
+volatile uint8_t buf2[62000];
 uint8_t aktualny_bufor = 0;
 
 /* USER CODE END PV */
@@ -151,7 +151,7 @@ void next(){
 
 			 	       fresult = f_open(&file, &utwor , FA_READ|FA_OPEN_EXISTING);
 			 	      // f_read(&file, &buf2,16000, &bytes_read);
-			 	       f_read(&file, &buf, 16000, &bytes_read);
+			 	       f_read(&file, &buf, 62000, &bytes_read);
 			 		 //	HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_15);
 			 		 	i=0;
 			 		 	j=0;
@@ -166,7 +166,7 @@ void prev(){
 
 				 	       fresult = f_open(&file, &utwor , FA_READ|FA_OPEN_EXISTING);
 				 	      // f_read(&file, &buf2,16000, &bytes_read);
-				 	       f_read(&file, &buf, 16000, &bytes_read);
+				 	       f_read(&file, &buf, 62000, &bytes_read);
 				 		 //	HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_15);
 				 		 	i=0;
 				 		 	j=0;
@@ -247,11 +247,11 @@ if(htim->Instance == TIM4)
 
 	if(aktualny_bufor==0){
 			HAL_DAC_SetValue(&hdac,DAC_CHANNEL_1,DAC_ALIGN_12B_R,buf[i]);
-			eof=f_eof(&file);
-			if(eof ==0) f_read(&file, &buf2[i],1, &bytes_read);
-			else {next();}
+		//	eof=f_eof(&file);
+			//if(eof ==0) f_read(&file, &buf2[i],1, &bytes_read);
+			//else {next();}
 			i++;
-			if(i==16000){
+			if(i==62000){
 				aktualny_bufor = 1;
 				j=0;
 				//HAL_TIM_Base_Start_IT(&htim7);*glosnosc_guziczki[indeks_glosnosci]
@@ -260,11 +260,11 @@ if(htim->Instance == TIM4)
 
 	if(aktualny_bufor==1){
 		HAL_DAC_SetValue(&hdac,DAC_CHANNEL_1,DAC_ALIGN_12B_R,buf2[j]);
-		eof=f_eof(&file);
-		if(eof ==0) f_read(&file, &buf[j],1, &bytes_read);
-		else {next();}
+		//eof=f_eof(&file);
+	//	if(eof ==0) f_read(&file, &buf[j],1, &bytes_read);
+	//	else {next();}
 		j++;
-		if(j==16000){
+		if(j==62000){
 			aktualny_bufor = 0;
 			i=0;
 			//HAL_TIM_Base_Start_IT(&htim7);
@@ -355,8 +355,9 @@ int main(void)
   	  fresult = f_mount(&FatFs, "", 1);
       read_song();
       fresult = f_open(&file, &utwor , FA_READ|FA_OPEN_EXISTING|FA_OPEN_ALWAYS);
-      //f_read(&file, &buf2,16000, &bytes_read);
-      f_read(&file, &buf, 16000, &bytes_read);
+
+      f_read(&file, &buf, 62000, &bytes_read);
+      f_read(&file, &buf2,62000, &bytes_read);
 
       lcd_init();
     //  lcd_send_string("Hello");
@@ -598,9 +599,9 @@ static void MX_TIM4_Init(void)
 
   /* USER CODE END TIM4_Init 1 */
   htim4.Instance = TIM4;
-  htim4.Init.Prescaler = 104;
+  htim4.Init.Prescaler = 126;
   htim4.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim4.Init.Period = 49;
+  htim4.Init.Period = 14;
   htim4.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim4.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
   if (HAL_TIM_Base_Init(&htim4) != HAL_OK)
