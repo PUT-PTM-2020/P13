@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 main.c:119:6:read_song	64	static
 main.c:147:6:next	8	static
 main.c:162:6:prev	8	static
@@ -20,3 +21,25 @@ main.c:747:13:MX_USART3_UART_Init	8	static
 main.c:778:13:MX_DMA_Init	16	static
 main.c:796:13:MX_GPIO_Init	48	static
 main.c:847:6:Error_Handler	4	static
+=======
+main.c:118:6:read_song	64	static
+main.c:146:6:next	8	static
+main.c:161:6:prev	8	static
+main.c:176:6:HAL_ADC_ConvCpltCallback	16	static
+main.c:195:6:HAL_GPIO_EXTI_Callback	16	static
+main.c:244:6:HAL_TIM_PeriodElapsedCallback	16	static
+main.c:289:6:HAL_UART_RxCpltCallback	16	static
+main.c:313:5:main	8	static
+main.c:384:6:SystemClock_Config	88	static
+main.c:427:13:MX_ADC1_Init	24	static
+main.c:477:13:MX_DAC_Init	16	static
+main.c:515:13:MX_I2C3_Init	8	static
+main.c:549:13:MX_SPI3_Init	8	static
+main.c:587:13:MX_TIM4_Init	32	static
+main.c:632:13:MX_TIM6_Init	16	static
+main.c:670:13:MX_TIM7_Init	16	static
+main.c:708:13:MX_USART2_UART_Init	8	static
+main.c:741:13:MX_USART3_UART_Init	8	static
+main.c:774:13:MX_GPIO_Init	48	static
+main.c:826:6:Error_Handler	4	static
+>>>>>>> parent of e9239e0... Zmiana prescalera i perioda
