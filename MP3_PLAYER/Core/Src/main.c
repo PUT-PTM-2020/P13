@@ -95,7 +95,7 @@ int stan = 1; //0 pauza 1 start
 
 uint16_t nr_utworu=0;
 
-volatile uint8_t buf[121000];
+volatile uint8_t buf[100000];
 volatile uint8_t buf2[22047];
 uint8_t aktualny_bufor = 0;
 
@@ -208,7 +208,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
 
 		 if(stan==1){
 
-		HAL_DAC_Start_DMA(&hdac, DAC_CHANNEL_1, &buf, 121000, DAC_ALIGN_12B_R);
+		HAL_DAC_Start_DMA(&hdac, DAC_CHANNEL_1, &buf, 100000, DAC_ALIGN_12B_R);
 		HAL_TIM_Base_Start(&htim6);
 		 //HAL_TIM_Base_Start_IT(&htim4);
 		 //HAL_TIM_Base_Start_IT(&htim7);
@@ -346,7 +346,7 @@ int main(void)
       //f_read(&file, &buf2,62000, &bytes_read);
 
 
-      f_read(&file, &buf, 121000, &bytes_read);
+      f_read(&file, &buf, 100000, &bytes_read);
     //  f_read(&file, &buf2,22047, &bytes_read);
 
       lcd_init();
@@ -740,7 +740,7 @@ static void MX_DMA_Init(void)
   * @param None
   * @retval None
   */
-static void MX_GPIO_Init(void){
+{
   GPIO_InitTypeDef GPIO_InitStruct = {0};
 
   /* GPIO Ports Clock Enable */
