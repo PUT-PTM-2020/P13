@@ -52,6 +52,7 @@
 ADC_HandleTypeDef hadc1;
 
 DAC_HandleTypeDef hdac;
+DMA_HandleTypeDef hdma_dac1;
 
 I2C_HandleTypeDef hi2c3;
 
@@ -59,7 +60,6 @@ SPI_HandleTypeDef hspi3;
 
 TIM_HandleTypeDef htim4;
 TIM_HandleTypeDef htim6;
-TIM_HandleTypeDef htim7;
 
 UART_HandleTypeDef huart2;
 UART_HandleTypeDef huart3;
@@ -95,7 +95,7 @@ int stan = 1; //0 pauza 1 start
 
 uint16_t nr_utworu=0;
 
-volatile uint8_t buf[22047];
+volatile uint8_t buf[121000];
 volatile uint8_t buf2[22047];
 uint8_t aktualny_bufor = 0;
 
@@ -103,14 +103,13 @@ uint8_t aktualny_bufor = 0;
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
-static void MX_GPIO_Init(void);
+static void MX_DMA_Init(void);
 static void MX_ADC1_Init(void);
 static void MX_DAC_Init(void);
 static void MX_SPI3_Init(void);
 static void MX_USART3_UART_Init(void);
 static void MX_TIM6_Init(void);
 static void MX_TIM4_Init(void);
-static void MX_TIM7_Init(void);
 static void MX_I2C3_Init(void);
 static void MX_USART2_UART_Init(void);
 /* USER CODE BEGIN PFP */
@@ -209,8 +208,10 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
 
 		 if(stan==1){
 
-		 HAL_TIM_Base_Start_IT(&htim4);
-		 HAL_TIM_Base_Start_IT(&htim7);
+		HAL_DAC_Start_DMA(&hdac, DAC_CHANNEL_1, &buf, 121000, DAC_ALIGN_12B_R);
+		HAL_TIM_Base_Start(&htim6);
+		 //HAL_TIM_Base_Start_IT(&htim4);
+		 //HAL_TIM_Base_Start_IT(&htim7);
 		 stan = 0;
 		 }
 		 else
@@ -236,10 +237,13 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
 }
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
-if(htim->Instance == TIM4)
-{
+	if(htim->Instance == TIM4)
+	{
+		eof=f_eof(&file);
+		if(eof ==0) f_read(&file, &buf,2048, &bytes_read);
+		else {next();}
 
-	if(aktualny_bufor==0){
+		/*if(aktualny_bufor==0){
 			HAL_DAC_SetValue(&hdac,DAC_CHANNEL_1,DAC_ALIGN_12B_R,buf[i]);
 			//eof=f_eof(&file);
 		//	if(eof ==0) f_read(&file, &buf2[i],1, &bytes_read);
@@ -249,8 +253,8 @@ if(htim->Instance == TIM4)
 				aktualny_bufor = 1;
 				j=0;
 				//HAL_TIM_Base_Start_IT(&htim7);*glosnosc_guziczki[indeks_glosnosci]
+				}
 			}
-		}
 
 	if(aktualny_bufor==1){
 		HAL_DAC_SetValue(&hdac,DAC_CHANNEL_1,DAC_ALIGN_12B_R,buf2[j]);
@@ -262,21 +266,10 @@ if(htim->Instance == TIM4)
 			aktualny_bufor = 0;
 			i=0;
 			//HAL_TIM_Base_Start_IT(&htim7);
-		}
-	}
-
-}
-
-if(htim->Instance == TIM7){
-	//PMW można spróbować do odczytu
-	if(aktualny_bufor==1){
-			f_read(&file, &buf,22047 , &bytes_read);
-		}
-	if(aktualny_bufor==0){
-			f_read(&file, &buf2, 22047, &bytes_read);
 			}
-	HAL_TIM_Base_Stop_IT(&htim7);
-}
+		}*/
+
+  }
 
 }
 
@@ -328,20 +321,18 @@ int main(void)
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
-  MX_GPIO_Init();
+  MX_DMA_Init();
   MX_ADC1_Init();
   MX_DAC_Init();
   MX_SPI3_Init();
   MX_USART3_UART_Init();
   MX_TIM6_Init();
   MX_TIM4_Init();
-  MX_TIM7_Init();
   MX_I2C3_Init();
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
 
-
-  HAL_DAC_Start(&hdac,DAC_CHANNEL_1);
+  //HAL_DAC_Start(&hdac,DAC_CHANNEL_1);
   HAL_ADC_Start_IT(&hadc1);
 
   HAL_UART_Transmit_IT(&huart2, sendUART, sizeSendUART);
@@ -355,7 +346,7 @@ int main(void)
       //f_read(&file, &buf2,62000, &bytes_read);
 
 
-      f_read(&file, &buf, 22047, &bytes_read);
+      f_read(&file, &buf, 121000, &bytes_read);
     //  f_read(&file, &buf2,22047, &bytes_read);
 
       lcd_init();
@@ -495,7 +486,7 @@ static void MX_DAC_Init(void)
   }
   /** DAC channel OUT1 config 
   */
-  sConfig.DAC_Trigger = DAC_TRIGGER_NONE;
+  sConfig.DAC_Trigger = DAC_TRIGGER_T6_TRGO;
   sConfig.DAC_OutputBuffer = DAC_OUTPUTBUFFER_ENABLE;
   if (HAL_DAC_ConfigChannel(&hdac, &sConfig, DAC_CHANNEL_1) != HAL_OK)
   {
@@ -642,15 +633,15 @@ static void MX_TIM6_Init(void)
 
   /* USER CODE END TIM6_Init 1 */
   htim6.Instance = TIM6;
-  htim6.Init.Prescaler = 249;
+  htim6.Init.Prescaler = 14;
   htim6.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim6.Init.Period = 20;
+  htim6.Init.Period = 126;
   htim6.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
   if (HAL_TIM_Base_Init(&htim6) != HAL_OK)
   {
     Error_Handler();
   }
-  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+  sMasterConfig.MasterOutputTrigger = TIM_TRGO_UPDATE;
   sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
   if (HAL_TIMEx_MasterConfigSynchronization(&htim6, &sMasterConfig) != HAL_OK)
   {
@@ -659,44 +650,6 @@ static void MX_TIM6_Init(void)
   /* USER CODE BEGIN TIM6_Init 2 */
 
   /* USER CODE END TIM6_Init 2 */
-
-}
-
-/**
-  * @brief TIM7 Initialization Function
-  * @param None
-  * @retval None
-  */
-static void MX_TIM7_Init(void)
-{
-
-  /* USER CODE BEGIN TIM7_Init 0 */
-
-  /* USER CODE END TIM7_Init 0 */
-
-  TIM_MasterConfigTypeDef sMasterConfig = {0};
-
-  /* USER CODE BEGIN TIM7_Init 1 */
-
-  /* USER CODE END TIM7_Init 1 */
-  htim7.Instance = TIM7;
-  htim7.Init.Prescaler = 7;
-  htim7.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim7.Init.Period = 118;
-  htim7.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
-  if (HAL_TIM_Base_Init(&htim7) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
-  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
-  if (HAL_TIMEx_MasterConfigSynchronization(&htim7, &sMasterConfig) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  /* USER CODE BEGIN TIM7_Init 2 */
-
-  /* USER CODE END TIM7_Init 2 */
 
 }
 
@@ -766,12 +719,27 @@ static void MX_USART3_UART_Init(void)
 
 }
 
+/** 
+  * Enable DMA controller clock
+  */
+static void MX_DMA_Init(void) 
+{
+
+  /* DMA controller clock enable */
+  __HAL_RCC_DMA1_CLK_ENABLE();
+
+  /* DMA interrupt init */
+  /* DMA1_Stream5_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(DMA1_Stream5_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(DMA1_Stream5_IRQn);
+
+}
+
 /**
   * @brief GPIO Initialization Function
   * @param None
   * @retval None
   */
-static void MX_GPIO_Init(void)
 {
   GPIO_InitTypeDef GPIO_InitStruct = {0};
 
