@@ -160,7 +160,7 @@ void prev(){
 	HAL_TIM_Base_Start_IT(&htim4);
 }
 
-void buff(){
+void bufforek(){
 	HAL_TIM_Base_Stop_IT(&htim4);
 	eof=f_eof(&file);
 	if(eof ==0)
@@ -247,7 +247,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 		HAL_DAC_SetValue(&hdac,DAC_CHANNEL_1,DAC_ALIGN_12B_R,buf[i]);
 		i++;
 		}
-		else buff();
+		else bufforek();
 
 	}
 
@@ -309,7 +309,7 @@ int main(void)
   MX_TIM4_Init();
   /* USER CODE BEGIN 2 */
 
-  //HAL_DAC_Start(&hdac,DAC_CHANNEL_1);
+  HAL_DAC_Start(&hdac,DAC_CHANNEL_1);
    // HAL_ADC_Start_IT(&hadc1);
 
    // HAL_UART_Transmit_IT(&huart2, sendUART, sizeSendUART);
@@ -319,7 +319,7 @@ int main(void)
         fresult = f_open(&file, &utwor , FA_READ|FA_OPEN_EXISTING|FA_OPEN_ALWAYS);
         fresult = f_read(&file, &buf2, 352, &bytes_read);
 
-        //f_read(&file, &buf, 62000, &bytes_read);
+        f_read(&file, &buf, 512, &bytes_read);
         //f_read(&file, &buf2,62000, &bytes_read);
 
 
