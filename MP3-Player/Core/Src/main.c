@@ -88,7 +88,7 @@ int stan = 1; //0 pauza 1 start
 
 uint16_t nr_utworu=0;
 
-volatile uint8_t buf[100000];
+volatile uint8_t buf[60000];
 volatile uint8_t buf2[22047];
 uint8_t aktualny_bufor = 0;
 
@@ -105,6 +105,8 @@ static void MX_SPI3_Init(void);
 static void MX_TIM6_Init(void);
 static void MX_USART2_UART_Init(void);
 /* USER CODE BEGIN PFP */
+
+
 
 void read_song(){
 
@@ -135,27 +137,27 @@ FRESULT res;
 }
 
 void next(){
-	HAL_TIM_Base_Stop_IT(&htim4);
+	HAL_TIM_Base_Stop_IT(&htim6);
 	f_close(&file);
 	nr_utworu++;
-	read_song();
+	//read_song();
 	fresult = f_open(&file, &utwor , FA_READ|FA_OPEN_EXISTING);
 	f_read(&file, &buf, 22047, &bytes_read);
 	i=0;
 	j=0;
-	 HAL_TIM_Base_Start_IT(&htim4);
+	 HAL_TIM_Base_Start_IT(&htim6);
 }
 
 void prev(){
-	HAL_TIM_Base_Stop_IT(&htim4);
+	HAL_TIM_Base_Stop_IT(&htim6);
 	f_close(&file);
 	nr_utworu--;
-	read_song();
+	//read_song();
 	fresult = f_open(&file, &utwor , FA_READ|FA_OPEN_EXISTING);
 	f_read(&file, &buf, 22047, &bytes_read);
 	i=0;
 	j=0;
-	HAL_TIM_Base_Start_IT(&htim4);
+	HAL_TIM_Base_Start_IT(&htim6);
 }
 
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc){
@@ -199,16 +201,16 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
 		 //pause/start
 
 		 if(stan==1){
-
-		HAL_DAC_Start_DMA(&hdac, DAC_CHANNEL_1, &buf, 100000, DAC_ALIGN_12B_R);
 		HAL_TIM_Base_Start(&htim6);
+		HAL_DAC_Start_DMA(&hdac, DAC_CHANNEL_1, &buf, 60000, DAC_ALIGN_12B_R);
+
 		 //HAL_TIM_Base_Start_IT(&htim4);
 		 //HAL_TIM_Base_Start_IT(&htim7);
 		 stan = 0;
 		 }
 		 else
 		 {
-			 HAL_TIM_Base_Stop_IT(&htim4);
+			 HAL_TIM_Base_Stop_IT(&htim6);
 			 stan=1;
 		 }
 
@@ -322,12 +324,12 @@ int main(void)
   /* USER CODE BEGIN 2 */
 
   //HAL_DAC_Start(&hdac,DAC_CHANNEL_1);
-    HAL_ADC_Start_IT(&hadc1);
+   // HAL_ADC_Start_IT(&hadc1);
 
-    HAL_UART_Transmit_IT(&huart2, sendUART, sizeSendUART);
+   // HAL_UART_Transmit_IT(&huart2, sendUART, sizeSendUART);
 
     	  fresult = f_mount(&FatFs, "", 1);
-        read_song();
+    	  read_song();
         fresult = f_open(&file, &utwor , FA_READ|FA_OPEN_EXISTING|FA_OPEN_ALWAYS);
 
 
@@ -335,7 +337,7 @@ int main(void)
         //f_read(&file, &buf2,62000, &bytes_read);
 
 
-        f_read(&file, &buf, 100000, &bytes_read);
+        fresult = f_read(&file, &buf, 60000, &bytes_read);
       //  f_read(&file, &buf2,22047, &bytes_read);
 
         lcd_init();
@@ -475,7 +477,7 @@ static void MX_DAC_Init(void)
   }
   /** DAC channel OUT1 config 
   */
-  sConfig.DAC_Trigger = DAC_TRIGGER_NONE;
+  sConfig.DAC_Trigger = DAC_TRIGGER_T6_TRGO;
   sConfig.DAC_OutputBuffer = DAC_OUTPUTBUFFER_ENABLE;
   if (HAL_DAC_ConfigChannel(&hdac, &sConfig, DAC_CHANNEL_1) != HAL_OK)
   {
@@ -544,7 +546,7 @@ static void MX_SPI3_Init(void)
   hspi3.Init.CLKPolarity = SPI_POLARITY_LOW;
   hspi3.Init.CLKPhase = SPI_PHASE_1EDGE;
   hspi3.Init.NSS = SPI_NSS_SOFT;
-  hspi3.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_2;
+  hspi3.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_16;
   hspi3.Init.FirstBit = SPI_FIRSTBIT_MSB;
   hspi3.Init.TIMode = SPI_TIMODE_DISABLE;
   hspi3.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;
@@ -577,9 +579,9 @@ static void MX_TIM6_Init(void)
 
   /* USER CODE END TIM6_Init 1 */
   htim6.Instance = TIM6;
-  htim6.Init.Prescaler = 126;
+  htim6.Init.Prescaler = 0;
   htim6.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim6.Init.Period = 14;
+  htim6.Init.Period = 1905;
   htim6.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
   if (HAL_TIM_Base_Init(&htim6) != HAL_OK)
   {
@@ -613,7 +615,7 @@ static void MX_USART2_UART_Init(void)
 
   /* USER CODE END USART2_Init 1 */
   huart2.Instance = USART2;
-  huart2.Init.BaudRate = 115200;
+  huart2.Init.BaudRate = 9600;
   huart2.Init.WordLength = UART_WORDLENGTH_8B;
   huart2.Init.StopBits = UART_STOPBITS_1;
   huart2.Init.Parity = UART_PARITY_NONE;
@@ -669,8 +671,8 @@ static void MX_GPIO_Init(void)
                            PB15 */
   GPIO_InitStruct.Pin = GPIO_PIN_11|GPIO_PIN_12|GPIO_PIN_13|GPIO_PIN_14 
                           |GPIO_PIN_15;
-  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING_FALLING;
+  GPIO_InitStruct.Pull = GPIO_PULLUP;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
   /*Configure GPIO pins : PD12 PD13 PD14 PD15 */
