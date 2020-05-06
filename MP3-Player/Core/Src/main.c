@@ -27,6 +27,7 @@
 #include <stdio.h>
 #include"ff.h"
 #include "lcd.h"
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -36,6 +37,7 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
+#define BUFSIZE 512
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -88,7 +90,7 @@ int stan = 1; //0 pauza 1 start
 
 uint16_t nr_utworu=0;
 
-volatile uint8_t buf[512];
+volatile uint8_t buf[BUFSIZE];
 volatile uint8_t buf2[22047];
 uint8_t aktualny_bufor = 0;
 
@@ -142,7 +144,7 @@ void next(){
 	nr_utworu++;
 	read_song();
 	fresult = f_open(&file, &utwor , FA_READ|FA_OPEN_EXISTING);
-	f_read(&file, &buf, 512, &bytes_read);
+	f_read(&file, &buf, BUFSIZE, &bytes_read);
 	i=0;
 	j=0;
 	 HAL_TIM_Base_Start_IT(&htim4);
@@ -154,17 +156,19 @@ void prev(){
 	nr_utworu--;
 	read_song();
 	fresult = f_open(&file, &utwor , FA_READ|FA_OPEN_EXISTING);
-	f_read(&file, &buf, 512, &bytes_read);
+	f_read(&file, &buf, BUFSIZE, &bytes_read);
 	i=0;
 	j=0;
 	HAL_TIM_Base_Start_IT(&htim4);
 }
 
 void bufforek(){
+
 	HAL_TIM_Base_Stop_IT(&htim4);
+	i=0;
 	eof=f_eof(&file);
 	if(eof ==0)
-		{f_read(&file, &buf,512, &bytes_read);
+		{f_read(&file, &buf,BUFSIZE, &bytes_read);
 		HAL_TIM_Base_Start_IT(&htim4);
 		}
 	else {next();}
@@ -213,13 +217,15 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
 		 if(stan==1){
 		//HAL_TIM_Base_Start(&htim6);
 		//HAL_DAC_Start_DMA(&hdac, DAC_CHANNEL_1, &buf, 60000, DAC_ALIGN_12B_R);
-
+		 lcd_put_cur(0, 0);
+		 lcd_send_string(&utwor);
 		 HAL_TIM_Base_Start_IT(&htim4);
 		 //HAL_TIM_Base_Start_IT(&htim7);
 		 stan = 0;
 		 }
 		 else
 		 {
+			 lcd_clear();
 			 HAL_TIM_Base_Stop_IT(&htim4);
 			 stan=1;
 		 }
@@ -243,7 +249,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 	if(htim->Instance == TIM4)
 	{
-		if(i<512){
+		if(i<BUFSIZE){
 		HAL_DAC_SetValue(&hdac,DAC_CHANNEL_1,DAC_ALIGN_12B_R,buf[i]);
 		i++;
 		}
@@ -319,14 +325,24 @@ int main(void)
         fresult = f_open(&file, &utwor , FA_READ|FA_OPEN_EXISTING|FA_OPEN_ALWAYS);
         fresult = f_read(&file, &buf2, 352, &bytes_read);
 
-        f_read(&file, &buf, 512, &bytes_read);
+        f_read(&file, &buf,BUFSIZE, &bytes_read);
         //f_read(&file, &buf2,62000, &bytes_read);
-
-
-
       //  f_read(&file, &buf2,22047, &bytes_read);
-
         lcd_init();
+
+        lcd_send_string ("HELLO WORLD");
+
+         HAL_Delay(1000);
+
+         lcd_put_cur(1, 0);
+
+         lcd_send_string("from CTECH");
+
+         HAL_Delay(2000);
+
+         lcd_clear ();
+
+
       //  lcd_send_string("Hello");
 
   /* USER CODE END 2 */
@@ -335,9 +351,9 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-	  lcd_send_string("Hello");
+	 // lcd_send_string("Hello");
 	     //lcd_send_cmd(0x80 | 0x03);
-	     lcd_send_string("Space Invaders");
+
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -532,7 +548,7 @@ static void MX_SPI3_Init(void)
   hspi3.Init.CLKPolarity = SPI_POLARITY_LOW;
   hspi3.Init.CLKPhase = SPI_PHASE_1EDGE;
   hspi3.Init.NSS = SPI_NSS_SOFT;
-  hspi3.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_16;
+  hspi3.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_8;
   hspi3.Init.FirstBit = SPI_FIRSTBIT_MSB;
   hspi3.Init.TIMode = SPI_TIMODE_DISABLE;
   hspi3.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;
@@ -566,9 +582,9 @@ static void MX_TIM4_Init(void)
 
   /* USER CODE END TIM4_Init 1 */
   htim4.Instance = TIM4;
-  htim4.Init.Prescaler = 14;
+  htim4.Init.Prescaler = 126;
   htim4.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim4.Init.Period = 126;
+  htim4.Init.Period = 14;
   htim4.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim4.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
   if (HAL_TIM_Base_Init(&htim4) != HAL_OK)
@@ -682,14 +698,10 @@ static void MX_GPIO_Init(void)
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOD, GPIO_PIN_12|GPIO_PIN_13|GPIO_PIN_14|GPIO_PIN_15, GPIO_PIN_RESET);
 
-  /*Configure GPIO pin : PB11 */
-  GPIO_InitStruct.Pin = GPIO_PIN_11;
-  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING_FALLING;
-  GPIO_InitStruct.Pull = GPIO_PULLDOWN;
-  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
-
-  /*Configure GPIO pins : PB12 PB13 PB14 PB15 */
-  GPIO_InitStruct.Pin = GPIO_PIN_12|GPIO_PIN_13|GPIO_PIN_14|GPIO_PIN_15;
+  /*Configure GPIO pins : PB11 PB12 PB13 PB14 
+                           PB15 */
+  GPIO_InitStruct.Pin = GPIO_PIN_11|GPIO_PIN_12|GPIO_PIN_13|GPIO_PIN_14 
+                          |GPIO_PIN_15;
   GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING_FALLING;
   GPIO_InitStruct.Pull = GPIO_PULLUP;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);

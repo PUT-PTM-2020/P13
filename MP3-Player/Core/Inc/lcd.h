@@ -11,3 +11,5 @@ void lcd_send_string (char *str);  // send string to the lcd
 void lcd_clear (void);
 
 void lcd_create_char (unsigned char *Pattern, const char Location);
+
+void lcd_put_cur(int row, int col);

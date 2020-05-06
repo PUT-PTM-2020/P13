@@ -76,3 +76,18 @@ void lcd_send_string(char *str) {
 	while (*str)
 		lcd_send_data(*str++);
 }
+
+void lcd_put_cur(int row, int col)
+{
+    switch (row)
+    {
+        case 0:
+            col |= 0x80;
+            break;
+        case 1:
+            col |= 0xC0;
+            break;
+    }
+
+    lcd_send_cmd (col);
+}

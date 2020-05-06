@@ -4,3 +4,4 @@ lcd.c:30:6:lcd_send_data	32	static
 lcd.c:43:6:lcd_clear	16	static
 lcd.c:50:6:lcd_init	8	static
 lcd.c:75:6:lcd_send_string	16	static
+lcd.c:80:6:lcd_put_cur	16	static
