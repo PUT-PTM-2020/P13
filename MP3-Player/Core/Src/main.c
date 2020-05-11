@@ -147,6 +147,9 @@ void next(){
 	f_read(&file, &buf, BUFSIZE, &bytes_read);
 	i=0;
 	j=0;
+	 lcd_clear ();
+	lcd_put_cur(0, 0);
+	lcd_send_string(&utwor);
 	 HAL_TIM_Base_Start_IT(&htim4);
 }
 
@@ -159,6 +162,9 @@ void prev(){
 	f_read(&file, &buf, BUFSIZE, &bytes_read);
 	i=0;
 	j=0;
+	 lcd_clear ();
+	lcd_put_cur(0, 0);
+	lcd_send_string(&utwor);
 	HAL_TIM_Base_Start_IT(&htim4);
 }
 
@@ -217,8 +223,8 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
 		 if(stan==1){
 		//HAL_TIM_Base_Start(&htim6);
 		//HAL_DAC_Start_DMA(&hdac, DAC_CHANNEL_1, &buf, 60000, DAC_ALIGN_12B_R);
-		 lcd_put_cur(0, 0);
-		 lcd_send_string(&utwor);
+		lcd_put_cur(0, 0);
+		lcd_send_string(&utwor);
 		 HAL_TIM_Base_Start_IT(&htim4);
 		 //HAL_TIM_Base_Start_IT(&htim7);
 		 stan = 0;
@@ -250,6 +256,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 	if(htim->Instance == TIM4)
 	{
 		if(i<BUFSIZE){
+
 		HAL_DAC_SetValue(&hdac,DAC_CHANNEL_1,DAC_ALIGN_12B_R,buf[i]);
 		i++;
 		}
@@ -329,18 +336,14 @@ int main(void)
         //f_read(&file, &buf2,62000, &bytes_read);
       //  f_read(&file, &buf2,22047, &bytes_read);
         lcd_init();
+        //lcd_send_data(0xFF);
+        lcd_send_string ("  Music Player");
+        HAL_Delay(2000);
+        lcd_clear ();
+       // lcd_put_cur(1, 0);
 
-        lcd_send_string ("HELLO WORLD");
 
-         HAL_Delay(1000);
 
-         lcd_put_cur(1, 0);
-
-         lcd_send_string("from CTECH");
-
-         HAL_Delay(2000);
-
-         lcd_clear ();
 
 
       //  lcd_send_string("Hello");
