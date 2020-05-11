@@ -225,6 +225,8 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
 		//HAL_DAC_Start_DMA(&hdac, DAC_CHANNEL_1, &buf, 60000, DAC_ALIGN_12B_R);
 		lcd_put_cur(0, 0);
 		lcd_send_string(&utwor);
+		lcd_put_cur(1, 0);
+		lcd_send_string("PLAY");
 		 HAL_TIM_Base_Start_IT(&htim4);
 		 //HAL_TIM_Base_Start_IT(&htim7);
 		 stan = 0;
@@ -232,6 +234,8 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
 		 else
 		 {
 			 lcd_clear();
+			 lcd_put_cur(1, 0);
+			 lcd_send_string("PAUSE");
 			 HAL_TIM_Base_Stop_IT(&htim4);
 			 stan=1;
 		 }
