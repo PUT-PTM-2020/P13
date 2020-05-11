@@ -37,7 +37,7 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-#define BUFSIZE 512
+#define BUFSIZE 10000
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -49,6 +49,7 @@
 ADC_HandleTypeDef hadc1;
 
 DAC_HandleTypeDef hdac;
+DMA_HandleTypeDef hdma_dac1;
 
 I2C_HandleTypeDef hi2c3;
 
@@ -99,6 +100,7 @@ uint8_t aktualny_bufor = 0;
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
+static void MX_DMA_Init(void);
 static void MX_ADC1_Init(void);
 static void MX_DAC_Init(void);
 static void MX_I2C3_Init(void);
@@ -317,6 +319,7 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
+  MX_DMA_Init();
   MX_ADC1_Init();
   MX_DAC_Init();
   MX_I2C3_Init();
@@ -327,6 +330,8 @@ int main(void)
   /* USER CODE BEGIN 2 */
 
   HAL_DAC_Start(&hdac,DAC_CHANNEL_1);
+  HAL_TIM_Base_Start_IT(&htim6);
+
    // HAL_ADC_Start_IT(&hadc1);
 
    // HAL_UART_Transmit_IT(&huart2, sendUART, sizeSendUART);
@@ -337,6 +342,10 @@ int main(void)
         fresult = f_read(&file, &buf2, 352, &bytes_read);
 
         f_read(&file, &buf,BUFSIZE, &bytes_read);
+        HAL_DAC_Start(&hdac,DAC_CHANNEL_1);
+        HAL_TIM_Base_Start_IT(&htim6);
+        HAL_DAC_Start_DMA(hdac, DAC_Channel_1, buf, 1, DAC_ALIGN_12B_R);
+
         //f_read(&file, &buf2,62000, &bytes_read);
       //  f_read(&file, &buf2,22047, &bytes_read);
         lcd_init();
@@ -486,7 +495,7 @@ static void MX_DAC_Init(void)
   }
   /** DAC channel OUT1 config 
   */
-  sConfig.DAC_Trigger = DAC_TRIGGER_NONE;
+  sConfig.DAC_Trigger = DAC_TRIGGER_T6_TRGO;
   sConfig.DAC_OutputBuffer = DAC_OUTPUTBUFFER_ENABLE;
   if (HAL_DAC_ConfigChannel(&hdac, &sConfig, DAC_CHANNEL_1) != HAL_OK)
   {
@@ -683,6 +692,22 @@ static void MX_USART2_UART_Init(void)
   /* USER CODE BEGIN USART2_Init 2 */
 
   /* USER CODE END USART2_Init 2 */
+
+}
+
+/** 
+  * Enable DMA controller clock
+  */
+static void MX_DMA_Init(void) 
+{
+
+  /* DMA controller clock enable */
+  __HAL_RCC_DMA1_CLK_ENABLE();
+
+  /* DMA interrupt init */
+  /* DMA1_Stream5_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(DMA1_Stream5_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(DMA1_Stream5_IRQn);
 
 }
 
