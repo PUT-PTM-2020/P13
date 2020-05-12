@@ -8,6 +8,7 @@ CDefines=USE_HAL_DRIVER;STM32F407xx;USE_HAL_DRIVER;USE_HAL_DRIVER;
 
 [PreviousGenFiles]
 AdvancedFolderStructure=true
+<<<<<<< HEAD
 HeaderFileListSize=8
 HeaderFiles#0=C:/Users/£ukasz/Desktop/git/MP3-Player/FATFS/Target/ffconf.h
 HeaderFiles#1=C:/Users/£ukasz/Desktop/git/MP3-Player/FATFS/Target/bsp_driver_sd.h
@@ -34,5 +35,20 @@ SourceFolderListSize=3
 SourcePath#0=C:/Users/£ukasz/Desktop/git/MP3-Player/FATFS/Target
 SourcePath#1=C:/Users/£ukasz/Desktop/git/MP3-Player/FATFS/App
 SourcePath#2=C:/Users/£ukasz/Desktop/git/MP3-Player/Core/Src
+=======
+HeaderFileListSize=3
+HeaderFiles#0=C:/Users/£ukasz/Desktop/git/MP3-Player/Core/Inc/stm32f4xx_it.h
+HeaderFiles#1=C:/Users/£ukasz/Desktop/git/MP3-Player/Core/Inc/stm32f4xx_hal_conf.h
+HeaderFiles#2=C:/Users/£ukasz/Desktop/git/MP3-Player/Core/Inc/main.h
+HeaderFolderListSize=1
+HeaderPath#0=C:/Users/£ukasz/Desktop/git/MP3-Player/Core/Inc
+HeaderFiles=;
+SourceFileListSize=3
+SourceFiles#0=C:/Users/£ukasz/Desktop/git/MP3-Player/Core/Src/stm32f4xx_it.c
+SourceFiles#1=C:/Users/£ukasz/Desktop/git/MP3-Player/Core/Src/stm32f4xx_hal_msp.c
+SourceFiles#2=C:/Users/£ukasz/Desktop/git/MP3-Player/Core/Src/main.c
+SourceFolderListSize=1
+SourcePath#0=C:/Users/£ukasz/Desktop/git/MP3-Player/Core/Src
+>>>>>>> parent of df0a269... Pr√≥by bufora
 SourceFiles=;
 
