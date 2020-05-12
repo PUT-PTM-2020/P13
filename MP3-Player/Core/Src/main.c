@@ -20,13 +20,12 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-#include "fatfs.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "string.h"
 #include <stdio.h>
-//#include"ff.h"
+#include"ff.h"
 #include "lcd.h"
 
 /* USER CODE END Includes */
@@ -38,7 +37,7 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-#define BUFSIZE 10000
+#define BUFSIZE 512
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -53,10 +52,6 @@ DAC_HandleTypeDef hdac;
 DMA_HandleTypeDef hdma_dac1;
 
 I2C_HandleTypeDef hi2c3;
-
-SD_HandleTypeDef hsd;
-DMA_HandleTypeDef hdma_sdio_rx;
-DMA_HandleTypeDef hdma_sdio_tx;
 
 SPI_HandleTypeDef hspi3;
 
@@ -113,7 +108,6 @@ static void MX_SPI3_Init(void);
 static void MX_TIM6_Init(void);
 static void MX_USART2_UART_Init(void);
 static void MX_TIM4_Init(void);
-static void MX_SDIO_SD_Init(void);
 /* USER CODE BEGIN PFP */
 
 
@@ -231,6 +225,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
 		 if(stan==1){
 		//HAL_TIM_Base_Start(&htim6);
 		//HAL_DAC_Start_DMA(&hdac, DAC_CHANNEL_1, &buf, 60000, DAC_ALIGN_12B_R);
+		lcd_clear();
 		lcd_put_cur(0, 0);
 		lcd_send_string(&utwor);
 		lcd_put_cur(1, 0);
@@ -333,8 +328,6 @@ int main(void)
   MX_TIM6_Init();
   MX_USART2_UART_Init();
   MX_TIM4_Init();
-  MX_SDIO_SD_Init();
-  MX_FATFS_Init();
   /* USER CODE BEGIN 2 */
 
   HAL_DAC_Start(&hdac,DAC_CHANNEL_1);
@@ -351,8 +344,8 @@ int main(void)
 
         f_read(&file, &buf,BUFSIZE, &bytes_read);
         HAL_DAC_Start(&hdac,DAC_CHANNEL_1);
-        HAL_TIM_Base_Start_IT(&htim6);
-        HAL_DAC_Start_DMA(hdac, DAC_Channel_1, buf, 1, DAC_ALIGN_12B_R);
+        //HAL_TIM_Base_Start_IT(&htim4);
+       // HAL_DAC_Start_DMA(hdac, DAC_Channel_1, buf, 1, DAC_ALIGN_12B_R);
 
         //f_read(&file, &buf2,62000, &bytes_read);
       //  f_read(&file, &buf2,22047, &bytes_read);
@@ -405,7 +398,7 @@ void SystemClock_Config(void)
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
   RCC_OscInitStruct.PLL.PLLM = 4;
-  RCC_OscInitStruct.PLL.PLLN = 72;
+  RCC_OscInitStruct.PLL.PLLN = 168;
   RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
   RCC_OscInitStruct.PLL.PLLQ = 3;
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
@@ -418,10 +411,10 @@ void SystemClock_Config(void)
                               |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
   RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
-  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
-  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
+  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV4;
+  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV2;
 
-  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2) != HAL_OK)
+  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_5) != HAL_OK)
   {
     Error_Handler();
   }
@@ -447,7 +440,7 @@ static void MX_ADC1_Init(void)
   /** Configure the global features of the ADC (Clock, Resolution, Data Alignment and number of conversion) 
   */
   hadc1.Instance = ADC1;
-  hadc1.Init.ClockPrescaler = ADC_CLOCK_SYNC_PCLK_DIV2;
+  hadc1.Init.ClockPrescaler = ADC_CLOCK_SYNC_PCLK_DIV4;
   hadc1.Init.Resolution = ADC_RESOLUTION_12B;
   hadc1.Init.ScanConvMode = DISABLE;
   hadc1.Init.ContinuousConvMode = DISABLE;
@@ -550,34 +543,6 @@ static void MX_I2C3_Init(void)
 }
 
 /**
-  * @brief SDIO Initialization Function
-  * @param None
-  * @retval None
-  */
-static void MX_SDIO_SD_Init(void)
-{
-
-  /* USER CODE BEGIN SDIO_Init 0 */
-
-  /* USER CODE END SDIO_Init 0 */
-
-  /* USER CODE BEGIN SDIO_Init 1 */
-
-  /* USER CODE END SDIO_Init 1 */
-  hsd.Instance = SDIO;
-  hsd.Init.ClockEdge = SDIO_CLOCK_EDGE_RISING;
-  hsd.Init.ClockBypass = SDIO_CLOCK_BYPASS_DISABLE;
-  hsd.Init.ClockPowerSave = SDIO_CLOCK_POWER_SAVE_DISABLE;
-  hsd.Init.BusWide = SDIO_BUS_WIDE_1B;
-  hsd.Init.HardwareFlowControl = SDIO_HARDWARE_FLOW_CONTROL_DISABLE;
-  hsd.Init.ClockDiv = 0;
-  /* USER CODE BEGIN SDIO_Init 2 */
-
-  /* USER CODE END SDIO_Init 2 */
-
-}
-
-/**
   * @brief SPI3 Initialization Function
   * @param None
   * @retval None
@@ -634,9 +599,9 @@ static void MX_TIM4_Init(void)
 
   /* USER CODE END TIM4_Init 1 */
   htim4.Instance = TIM4;
-  htim4.Init.Prescaler = 67;
+  htim4.Init.Prescaler = 126;
   htim4.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim4.Init.Period = 23;
+  htim4.Init.Period = 14;
   htim4.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim4.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
   if (HAL_TIM_Base_Init(&htim4) != HAL_OK)
@@ -738,24 +703,12 @@ static void MX_DMA_Init(void)
 {
 
   /* DMA controller clock enable */
-<<<<<<< HEAD
-  __HAL_RCC_DMA2_CLK_ENABLE();
-
-  /* DMA interrupt init */
-  /* DMA2_Stream3_IRQn interrupt configuration */
-  HAL_NVIC_SetPriority(DMA2_Stream3_IRQn, 0, 0);
-  HAL_NVIC_EnableIRQ(DMA2_Stream3_IRQn);
-  /* DMA2_Stream6_IRQn interrupt configuration */
-  HAL_NVIC_SetPriority(DMA2_Stream6_IRQn, 0, 0);
-  HAL_NVIC_EnableIRQ(DMA2_Stream6_IRQn);
-=======
   __HAL_RCC_DMA1_CLK_ENABLE();
 
   /* DMA interrupt init */
   /* DMA1_Stream5_IRQn interrupt configuration */
   HAL_NVIC_SetPriority(DMA1_Stream5_IRQn, 0, 0);
   HAL_NVIC_EnableIRQ(DMA1_Stream5_IRQn);
->>>>>>> parent of df0a269... Próby bufora
 
 }
 
