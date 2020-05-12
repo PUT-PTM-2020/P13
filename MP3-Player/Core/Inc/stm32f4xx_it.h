@@ -60,7 +60,10 @@ void ADC_IRQHandler(void);
 void TIM4_IRQHandler(void);
 void USART2_IRQHandler(void);
 void EXTI15_10_IRQHandler(void);
+void SDIO_IRQHandler(void);
 void SPI3_IRQHandler(void);
+void DMA2_Stream3_IRQHandler(void);
+void DMA2_Stream6_IRQHandler(void);
 void I2C3_EV_IRQHandler(void);
 void I2C3_ER_IRQHandler(void);
 /* USER CODE BEGIN EFP */
