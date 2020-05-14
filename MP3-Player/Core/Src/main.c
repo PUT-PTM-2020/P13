@@ -78,21 +78,19 @@ uint8_t receiveUART[1];
 uint16_t sizeReceiveUART = 1;
 int i=0;
 int j=-1;
-uint8_t indeks_glosnosci = 0;
+uint8_t indeks_glosnosci = 4;
 double glosnosc_guziczki [10] = {0,0.25,0.5,1,2,4,8,10,15,20};
 uint16_t value = 0;
 DIR dir;
 
 uint8_t eof;
 char utwor[20];
-
-char buff[256];
 int stan = 1; //0 pauza 1 start
 
 uint16_t nr_utworu=0;
 
 volatile uint8_t buf[BUFSIZE];
-volatile uint8_t buf2[22047];
+volatile uint8_t buf2[BUFSIZE];
 uint8_t aktualny_bufor = 0;
 
 /* USER CODE END PV */
@@ -262,12 +260,37 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 	if(htim->Instance == TIM4)
 	{
-		if(i<BUFSIZE){
+		if(aktualny_bufor==0){
+					HAL_DAC_SetValue(&hdac,DAC_CHANNEL_1,DAC_ALIGN_12B_R,buf[i]*glosnosc_guziczki[indeks_glosnosci]);
+					eof=f_eof(&file);
+					if(eof ==0) f_read(&file, &buf2[i],1, &bytes_read);
+					else {next();}
+					i++;
+					if(i==BUFSIZE){
+						aktualny_bufor = 1;
+						j=0;
+						//HAL_TIM_Base_Start_IT(&htim7);*glosnosc_guziczki[indeks_glosnosci]
+					}
+				}
 
-		HAL_DAC_SetValue(&hdac,DAC_CHANNEL_1,DAC_ALIGN_12B_R,buf[i]);
-		i++;
-		}
-		else bufforek();
+			if(aktualny_bufor==1){
+				HAL_DAC_SetValue(&hdac,DAC_CHANNEL_1,DAC_ALIGN_12B_R,buf2[j]*glosnosc_guziczki[indeks_glosnosci]);
+				eof=f_eof(&file);
+				if(eof ==0) f_read(&file, &buf[j],1, &bytes_read);
+				else {next();}
+				j++;
+				if(j==BUFSIZE){
+					aktualny_bufor = 0;
+					i=0;
+					//HAL_TIM_Base_Start_IT(&htim7);
+				}
+			}
+		/*if(i<BUFSIZE){
+
+			HAL_DAC_SetValue(&hdac,DAC_CHANNEL_1,DAC_ALIGN_12B_R,buf[i]);
+			i++;
+			}
+			else bufforek();*/
 
 	}
 
@@ -565,7 +588,7 @@ static void MX_SPI3_Init(void)
   hspi3.Init.CLKPolarity = SPI_POLARITY_LOW;
   hspi3.Init.CLKPhase = SPI_PHASE_1EDGE;
   hspi3.Init.NSS = SPI_NSS_SOFT;
-  hspi3.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_8;
+  hspi3.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_16;
   hspi3.Init.FirstBit = SPI_FIRSTBIT_MSB;
   hspi3.Init.TIMode = SPI_TIMODE_DISABLE;
   hspi3.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;
