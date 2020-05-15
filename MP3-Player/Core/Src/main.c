@@ -47,6 +47,7 @@
 
 /* Private variables ---------------------------------------------------------*/
 ADC_HandleTypeDef hadc1;
+DMA_HandleTypeDef hdma_adc1;
 
 DAC_HandleTypeDef hdac;
 DMA_HandleTypeDef hdma_dac1;
@@ -82,7 +83,7 @@ uint8_t indeks_glosnosci = 4;
 double glosnosc_guziczki [10] = {0,0.25,0.5,1,2,4,8,10,15,20};
 uint16_t value = 0;
 DIR dir;
-
+uint16_t Joystick[2];
 uint8_t eof;
 char utwor[20];
 int stan = 1; //0 pauza 1 start
@@ -182,9 +183,7 @@ void bufforek(){
 
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc){
 
-
-		  		  value = HAL_ADC_GetValue(&hadc1);
-
+	if(hadc->Instance == hadc1){
 //za pierwszym ustawieniem potencjometru działa ale potem się nie zmienia
 		  	  if(value>0 && value <= 410) indeks_glosnosci = 0;
 		  	  else if(value>410 && value <= 819) indeks_glosnosci = 1;
@@ -196,7 +195,8 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc){
 		  	else if(value>2876 && value <= 3285) indeks_glosnosci = 7;
 		  	else if(value>3285 && value <= 3692) indeks_glosnosci = 8;
 		  	else if(value>3692 && value <= 4095) indeks_glosnosci = 9;
-		  	HAL_ADC_Start_IT(&hadc1);
+
+	}
 }
 
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
@@ -366,7 +366,8 @@ int main(void)
         fresult = f_read(&file, &buf2, 352, &bytes_read);
 
         f_read(&file, &buf,BUFSIZE, &bytes_read);
-        HAL_DAC_Start(&hdac,DAC_CHANNEL_1);
+        HAL_ADC_Start_DMA(&hadc1, value, 1);
+
         //HAL_TIM_Base_Start_IT(&htim4);
        // HAL_DAC_Start_DMA(hdac, DAC_Channel_1, buf, 1, DAC_ALIGN_12B_R);
 
@@ -463,16 +464,16 @@ static void MX_ADC1_Init(void)
   /** Configure the global features of the ADC (Clock, Resolution, Data Alignment and number of conversion) 
   */
   hadc1.Instance = ADC1;
-  hadc1.Init.ClockPrescaler = ADC_CLOCK_SYNC_PCLK_DIV4;
+  hadc1.Init.ClockPrescaler = ADC_CLOCK_SYNC_PCLK_DIV8;
   hadc1.Init.Resolution = ADC_RESOLUTION_12B;
-  hadc1.Init.ScanConvMode = DISABLE;
-  hadc1.Init.ContinuousConvMode = DISABLE;
+  hadc1.Init.ScanConvMode = ENABLE;
+  hadc1.Init.ContinuousConvMode = ENABLE;
   hadc1.Init.DiscontinuousConvMode = DISABLE;
   hadc1.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_NONE;
   hadc1.Init.ExternalTrigConv = ADC_SOFTWARE_START;
   hadc1.Init.DataAlign = ADC_DATAALIGN_RIGHT;
   hadc1.Init.NbrOfConversion = 1;
-  hadc1.Init.DMAContinuousRequests = DISABLE;
+  hadc1.Init.DMAContinuousRequests = ENABLE;
   hadc1.Init.EOCSelection = ADC_EOC_SINGLE_CONV;
   if (HAL_ADC_Init(&hadc1) != HAL_OK)
   {
@@ -727,11 +728,15 @@ static void MX_DMA_Init(void)
 
   /* DMA controller clock enable */
   __HAL_RCC_DMA1_CLK_ENABLE();
+  __HAL_RCC_DMA2_CLK_ENABLE();
 
   /* DMA interrupt init */
   /* DMA1_Stream5_IRQn interrupt configuration */
   HAL_NVIC_SetPriority(DMA1_Stream5_IRQn, 0, 0);
   HAL_NVIC_EnableIRQ(DMA1_Stream5_IRQn);
+  /* DMA2_Stream0_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(DMA2_Stream0_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(DMA2_Stream0_IRQn);
 
 }
 
