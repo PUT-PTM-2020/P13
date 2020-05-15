@@ -188,7 +188,23 @@ void bufforek(){
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc){
 
 	if(hadc->Instance == hadc1.Instance){
+<<<<<<< HEAD
 		zrodlo_gloscnoci=1;
+=======
+		HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_13);
+//za pierwszym ustawieniem potencjometru działa ale potem się nie zmienia
+		  	  if(value[0]>0 && value[0] <= 410) indeks_glosnosci = 0;
+		  	  else if(value[0]>410 && value[0] <= 819) indeks_glosnosci = 1;
+		  	  else if(value[0]>819 && value[0] <= 1228) indeks_glosnosci = 2;
+		  	else if(value[0]>1228 && value[0] <= 1647) indeks_glosnosci = 3;
+		  	else if(value[0]>1647 && value[0] <= 2058) indeks_glosnosci = 4;
+		  	else if(value[0]>2058 && value[0] <= 2467) indeks_glosnosci = 5;
+		  	else if(value[0]>2467 && value[0] <= 2876) indeks_glosnosci = 6;
+		  	else if(value[0]>2876 && value[0] <= 3285) indeks_glosnosci = 7;
+		  	else if(value[0]>3285 && value[0] <= 3692) indeks_glosnosci = 8;
+		  	else if(value[0]>3692 && value[0] <= 4095) indeks_glosnosci = 9;
+
+>>>>>>> parent of d32993a... Działa potencjometr
 	}
 }
 
@@ -265,7 +281,11 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 		}
 
 		if(aktualny_bufor==0){
+<<<<<<< HEAD
 					HAL_DAC_SetValue(&hdac,DAC_CHANNEL_1,DAC_ALIGN_12B_R,buf[i]*glosnosc);
+=======
+					HAL_DAC_SetValue(&hdac,DAC_CHANNEL_1,DAC_ALIGN_12B_R,buf[i]*glosnosc_guziczki[indeks_glosnosci]);
+>>>>>>> parent of d32993a... Działa potencjometr
 					eof=f_eof(&file);
 					if(eof ==0) f_read(&file, &buf2[i],1, &bytes_read);
 					else {next();}
@@ -278,7 +298,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 				}
 
 			if(aktualny_bufor==1){
-				HAL_DAC_SetValue(&hdac,DAC_CHANNEL_1,DAC_ALIGN_12B_R,buf2[j]*(value[0]/500));
+				HAL_DAC_SetValue(&hdac,DAC_CHANNEL_1,DAC_ALIGN_12B_R,buf2[j]*glosnosc_guziczki[indeks_glosnosci]);
 				eof=f_eof(&file);
 				if(eof ==0) f_read(&file, &buf[j],1, &bytes_read);
 				else {next();}
@@ -373,7 +393,7 @@ int main(void)
         HAL_ADC_Start_DMA(&hadc1, (uint32_t*)value, 1);
 
         //HAL_TIM_Base_Start_IT(&htim4);
-      // HAL_DAC_Start_DMA(hdac, DAC_Channel_1, buf, 1, DAC_ALIGN_12B_R);
+       // HAL_DAC_Start_DMA(hdac, DAC_Channel_1, buf, 1, DAC_ALIGN_12B_R);
 
         //f_read(&file, &buf2,62000, &bytes_read);
       //  f_read(&file, &buf2,22047, &bytes_read);
@@ -487,7 +507,7 @@ static void MX_ADC1_Init(void)
   */
   sConfig.Channel = ADC_CHANNEL_3;
   sConfig.Rank = 1;
-  sConfig.SamplingTime = ADC_SAMPLETIME_480CYCLES;
+  sConfig.SamplingTime = ADC_SAMPLETIME_56CYCLES;
   if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
   {
     Error_Handler();
