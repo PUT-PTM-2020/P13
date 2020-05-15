@@ -183,7 +183,8 @@ void bufforek(){
 
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc){
 
-	if(hadc->Instance == hadc1){
+	if(hadc->Instance == hadc1.Instance){
+		HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_13);
 //za pierwszym ustawieniem potencjometru działa ale potem się nie zmienia
 		  	  if(value>0 && value <= 410) indeks_glosnosci = 0;
 		  	  else if(value>410 && value <= 819) indeks_glosnosci = 1;
@@ -375,9 +376,9 @@ int main(void)
       //  f_read(&file, &buf2,22047, &bytes_read);
         lcd_init();
         //lcd_send_data(0xFF);
-        lcd_send_string ("  Music Player");
-        HAL_Delay(2000);
-        lcd_clear ();
+      //  lcd_send_string ("  Music Player");
+        //HAL_Delay(2000);
+        //lcd_clear ();
        // lcd_put_cur(1, 0);
 
 
