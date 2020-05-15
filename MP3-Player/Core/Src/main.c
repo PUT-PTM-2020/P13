@@ -81,7 +81,11 @@ int i=0;
 int j=-1;
 uint8_t indeks_glosnosci = 4;
 double glosnosc_guziczki [10] = {0,0.25,0.5,1,2,4,8,10,15,20};
-uint16_t value[1];
+uint16_t value_adc[1];
+
+double glosnosc;
+uint8_t zrodlo_gloscnoci=0;
+
 DIR dir;
 
 uint8_t eof;
@@ -181,23 +185,12 @@ void bufforek(){
 	else {next();}
 }
 
-/*void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc){
+void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc){
 
 	if(hadc->Instance == hadc1.Instance){
-
-		  	  if(value[0]>0 && value[0] <= 410) indeks_glosnosci = 0;
-		  	  else if(value[0]>410 && value[0] <= 819) indeks_glosnosci = 1;
-		  	  else if(value[0]>819 && value[0] <= 1228) indeks_glosnosci = 2;
-		  	else if(value[0]>1228 && value[0] <= 1647) indeks_glosnosci = 3;
-		  	else if(value[0]>1647 && value[0] <= 2058) indeks_glosnosci = 4;
-		  	else if(value[0]>2058 && value[0] <= 2467) indeks_glosnosci = 5;
-		  	else if(value[0]>2467 && value[0] <= 2876) indeks_glosnosci = 6;
-		  	else if(value[0]>2876 && value[0] <= 3285) indeks_glosnosci = 7;
-		  	else if(value[0]>3285 && value[0] <= 3692) indeks_glosnosci = 8;
-		  	else if(value[0]>3692 && value[0] <= 4095) indeks_glosnosci = 9;
-
+		zrodlo_gloscnoci=1;
 	}
-}*/
+}
 
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
 
@@ -205,7 +198,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
 
 		 //ciszej
 
-		 if(indeks_glosnosci>0 && indeks_glosnosci<=9) indeks_glosnosci--;
+		 if(indeks_glosnosci>0 && indeks_glosnosci<=9) {indeks_glosnosci--; zrodlo_gloscnoci=0;}
 
 		  	}
 
@@ -252,6 +245,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
 
 		 if(indeks_glosnosci>=0 && indeks_glosnosci<9)
 			 indeks_glosnosci++;
+		 	 zrodlo_gloscnoci=0;
 			 	}
 	 HAL_Delay(200);
 
@@ -260,8 +254,18 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 	if(htim->Instance == TIM4)
 	{
+		switch (zrodlo_gloscnoci){
+		case 0:
+			glosnosc= glosnosc_guziczki[indeks_glosnosci];
+			break;
+		case 1:
+			glosnosc = (value[0]/500);
+			break;
+
+		}
+
 		if(aktualny_bufor==0){
-					HAL_DAC_SetValue(&hdac,DAC_CHANNEL_1,DAC_ALIGN_12B_R,buf[i]*(value[0]/500));
+					HAL_DAC_SetValue(&hdac,DAC_CHANNEL_1,DAC_ALIGN_12B_R,buf[i]*glosnosc);
 					eof=f_eof(&file);
 					if(eof ==0) f_read(&file, &buf2[i],1, &bytes_read);
 					else {next();}
@@ -354,7 +358,7 @@ int main(void)
   /* USER CODE BEGIN 2 */
 
   HAL_DAC_Start(&hdac,DAC_CHANNEL_1);
-  HAL_TIM_Base_Start_IT(&htim6);
+  //HAL_TIM_Base_Start_IT(&htim6);
 
    // HAL_ADC_Start_IT(&hadc1);
 
@@ -464,7 +468,7 @@ static void MX_ADC1_Init(void)
   /** Configure the global features of the ADC (Clock, Resolution, Data Alignment and number of conversion) 
   */
   hadc1.Instance = ADC1;
-  hadc1.Init.ClockPrescaler = ADC_CLOCK_SYNC_PCLK_DIV6;
+  hadc1.Init.ClockPrescaler = ADC_CLOCK_SYNC_PCLK_DIV8;
   hadc1.Init.Resolution = ADC_RESOLUTION_12B;
   hadc1.Init.ScanConvMode = DISABLE;
   hadc1.Init.ContinuousConvMode = ENABLE;
