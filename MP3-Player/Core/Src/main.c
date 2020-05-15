@@ -81,9 +81,9 @@ int i=0;
 int j=-1;
 uint8_t indeks_glosnosci = 4;
 double glosnosc_guziczki [10] = {0,0.25,0.5,1,2,4,8,10,15,20};
-uint16_t value = 0;
+uint16_t value[1];
 DIR dir;
-uint16_t Joystick[2];
+
 uint8_t eof;
 char utwor[20];
 int stan = 1; //0 pauza 1 start
@@ -186,16 +186,16 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc){
 	if(hadc->Instance == hadc1.Instance){
 		HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_13);
 //za pierwszym ustawieniem potencjometru działa ale potem się nie zmienia
-		  	  if(value>0 && value <= 410) indeks_glosnosci = 0;
-		  	  else if(value>410 && value <= 819) indeks_glosnosci = 1;
-		  	  else if(value>819 && value <= 1228) indeks_glosnosci = 2;
-		  	else if(value>1228 && value <= 1647) indeks_glosnosci = 3;
-		  	else if(value>1647 && value <= 2058) indeks_glosnosci = 4;
-		  	else if(value>2058 && value <= 2467) indeks_glosnosci = 5;
-		  	else if(value>2467 && value <= 2876) indeks_glosnosci = 6;
-		  	else if(value>2876 && value <= 3285) indeks_glosnosci = 7;
-		  	else if(value>3285 && value <= 3692) indeks_glosnosci = 8;
-		  	else if(value>3692 && value <= 4095) indeks_glosnosci = 9;
+		  	  if(value[0]>0 && value[0] <= 410) indeks_glosnosci = 0;
+		  	  else if(value[0]>410 && value[0] <= 819) indeks_glosnosci = 1;
+		  	  else if(value[0]>819 && value[0] <= 1228) indeks_glosnosci = 2;
+		  	else if(value[0]>1228 && value[0] <= 1647) indeks_glosnosci = 3;
+		  	else if(value[0]>1647 && value[0] <= 2058) indeks_glosnosci = 4;
+		  	else if(value[0]>2058 && value[0] <= 2467) indeks_glosnosci = 5;
+		  	else if(value[0]>2467 && value[0] <= 2876) indeks_glosnosci = 6;
+		  	else if(value[0]>2876 && value[0] <= 3285) indeks_glosnosci = 7;
+		  	else if(value[0]>3285 && value[0] <= 3692) indeks_glosnosci = 8;
+		  	else if(value[0]>3692 && value[0] <= 4095) indeks_glosnosci = 9;
 
 	}
 }
@@ -367,7 +367,7 @@ int main(void)
         fresult = f_read(&file, &buf2, 352, &bytes_read);
 
         f_read(&file, &buf,BUFSIZE, &bytes_read);
-        HAL_ADC_Start_DMA(&hadc1, value, 1);
+        HAL_ADC_Start_DMA(&hadc1, (uint32_t*)value, 1);
 
         //HAL_TIM_Base_Start_IT(&htim4);
        // HAL_DAC_Start_DMA(hdac, DAC_Channel_1, buf, 1, DAC_ALIGN_12B_R);
@@ -465,9 +465,9 @@ static void MX_ADC1_Init(void)
   /** Configure the global features of the ADC (Clock, Resolution, Data Alignment and number of conversion) 
   */
   hadc1.Instance = ADC1;
-  hadc1.Init.ClockPrescaler = ADC_CLOCK_SYNC_PCLK_DIV8;
+  hadc1.Init.ClockPrescaler = ADC_CLOCK_SYNC_PCLK_DIV6;
   hadc1.Init.Resolution = ADC_RESOLUTION_12B;
-  hadc1.Init.ScanConvMode = ENABLE;
+  hadc1.Init.ScanConvMode = DISABLE;
   hadc1.Init.ContinuousConvMode = ENABLE;
   hadc1.Init.DiscontinuousConvMode = DISABLE;
   hadc1.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_NONE;
@@ -484,7 +484,7 @@ static void MX_ADC1_Init(void)
   */
   sConfig.Channel = ADC_CHANNEL_3;
   sConfig.Rank = 1;
-  sConfig.SamplingTime = ADC_SAMPLETIME_3CYCLES;
+  sConfig.SamplingTime = ADC_SAMPLETIME_56CYCLES;
   if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
   {
     Error_Handler();
