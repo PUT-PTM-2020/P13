@@ -189,8 +189,11 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc){
 
 	if(hadc->Instance == hadc1.Instance){
 <<<<<<< HEAD
+<<<<<<< HEAD
 		zrodlo_gloscnoci=1;
 =======
+=======
+>>>>>>> parent of d32993a... Działa potencjometr
 		HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_13);
 //za pierwszym ustawieniem potencjometru działa ale potem się nie zmienia
 		  	  if(value[0]>0 && value[0] <= 410) indeks_glosnosci = 0;
@@ -282,7 +285,11 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 
 		if(aktualny_bufor==0){
 <<<<<<< HEAD
+<<<<<<< HEAD
 					HAL_DAC_SetValue(&hdac,DAC_CHANNEL_1,DAC_ALIGN_12B_R,buf[i]*glosnosc);
+=======
+					HAL_DAC_SetValue(&hdac,DAC_CHANNEL_1,DAC_ALIGN_12B_R,buf[i]*glosnosc_guziczki[indeks_glosnosci]);
+>>>>>>> parent of d32993a... Działa potencjometr
 =======
 					HAL_DAC_SetValue(&hdac,DAC_CHANNEL_1,DAC_ALIGN_12B_R,buf[i]*glosnosc_guziczki[indeks_glosnosci]);
 >>>>>>> parent of d32993a... Działa potencjometr
