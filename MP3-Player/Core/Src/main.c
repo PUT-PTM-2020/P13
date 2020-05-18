@@ -76,7 +76,6 @@ WORD bytes_read;           //liczba odczytanych byte
 
 
 uint8_t sendUART[2] = {65, 'B'};
-uint16_t sizeutwor;
 uint16_t sizeSendUART = 2;
 uint8_t receiveUART[1];
 uint16_t sizeReceiveUART = 1;
@@ -126,7 +125,6 @@ FRESULT res;
 
 		res = f_opendir(&dir, "/");
     	if (res == FR_OK) {
-    		HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_15);
   	  	  	do{
             		res = f_readdir(&dir, &fno);
             		if (res != FR_OK || fno.fname[0] == 0) {i=1; break;}
@@ -139,7 +137,7 @@ FRESULT res;
   	  	  		nr_utworu=i-1;
   	  	  		if(nr_utworu==0)read_song();
             	}
-    			sizeutwor = strlen(utwor);
+
                	return;
 }
 
@@ -302,38 +300,10 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef*huart)
 			{
 
 			HAL_UART_Receive_IT(&huart2, receiveUART, sizeReceiveUART);
-			if(receiveUART[0]==65){
-				HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_12);
-				prev();
-			}
-			if(receiveUART[0]==66){
-
+			if(receiveUART[0]==79){
 				HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_13);
-				if(stan==1){
-					//HAL_UART_Transmit_IT(&huart2, &utwor, sizeutwor);
-						lcd_clear();
-						lcd_put_cur(0, 0);
-						lcd_send_string(&utwor);
-						lcd_put_cur(1, 0);
-						lcd_send_string("PLAY");
-						 HAL_TIM_Base_Start_IT(&htim4);
-						 stan = 0;
-						 }
-						 else
-						 {
-							 lcd_clear();
-							 lcd_put_cur(1, 0);
-							 lcd_send_string("PAUSE");
-							 HAL_TIM_Base_Stop_IT(&htim4);
-							 stan=1;
-						 }
-						}
-			if(receiveUART[0]==67){
-				HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_14);
-							next();
-						}
 			}
-
+			}
 	}
 
 /* USER CODE END PFP */
@@ -387,7 +357,7 @@ int main(void)
    // HAL_ADC_Start_IT(&hadc1);
 
    // HAL_UART_Transmit_IT(&huart2, sendUART, sizeSendUART);
-  HAL_UART_Receive_IT(&huart2, receiveUART, sizeReceiveUART);
+
     	fresult = f_mount(&FatFs, "", 1);
     	read_song();
         fresult = f_open(&file, &utwor , FA_READ|FA_OPEN_EXISTING|FA_OPEN_ALWAYS);
@@ -511,7 +481,7 @@ static void MX_ADC1_Init(void)
   */
   sConfig.Channel = ADC_CHANNEL_3;
   sConfig.Rank = 1;
-  sConfig.SamplingTime = ADC_SAMPLETIME_56CYCLES;
+  sConfig.SamplingTime = ADC_SAMPLETIME_480CYCLES;
   if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
   {
     Error_Handler();
