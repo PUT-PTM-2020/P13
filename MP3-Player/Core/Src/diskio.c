@@ -66,11 +66,12 @@ inline void DESELECT(void)
 
 extern SPI_HandleTypeDef hspi3;
 
+
 static
 void xmit_spi(BYTE Data)
 {
 	while (HAL_SPI_GetState(&hspi3) != HAL_SPI_STATE_READY);
-	HAL_SPI_Transmit(&hspi3, &Data, 1, 5000);
+	HAL_SPI_Transmit_DMA(&hspi3, &Data, 1);
 }
 
 static BYTE rcvr_spi(void)
@@ -79,8 +80,7 @@ static BYTE rcvr_spi(void)
 	Dummy = 0xFF;
 	Data = 0;
 	while ((HAL_SPI_GetState(&hspi3) != HAL_SPI_STATE_READY));
-	HAL_SPI_TransmitReceive(&hspi3, &Dummy, &Data, 1, 5000);
-
+	HAL_SPI_TransmitReceive_DMA(&hspi3, &Dummy, &Data, 1);
 	return Data;
 }
 
