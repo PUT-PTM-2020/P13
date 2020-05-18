@@ -1,7 +1,7 @@
 diskio.c:56:13:SELECT	4	static
 diskio.c:62:13:DESELECT	4	static
-diskio.c:70:6:xmit_spi	16	static
-diskio.c:76:13:rcvr_spi	24	static
+diskio.c:71:6:xmit_spi	16	static
+diskio.c:77:13:rcvr_spi	24	static
 diskio.c:88:6:rcvr_spi_m	16	static
 diskio.c:96:13:wait_ready	16	static
 diskio.c:115:6:power_on	24	static

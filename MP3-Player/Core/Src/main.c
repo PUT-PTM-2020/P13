@@ -50,13 +50,10 @@ ADC_HandleTypeDef hadc1;
 DMA_HandleTypeDef hdma_adc1;
 
 DAC_HandleTypeDef hdac;
-DMA_HandleTypeDef hdma_dac1;
 
 I2C_HandleTypeDef hi2c3;
 
 SPI_HandleTypeDef hspi3;
-DMA_HandleTypeDef hdma_spi3_rx;
-DMA_HandleTypeDef hdma_spi3_tx;
 
 TIM_HandleTypeDef htim4;
 TIM_HandleTypeDef htim6;
@@ -84,6 +81,7 @@ int j=-1;
 uint8_t indeks_glosnosci = 4;
 double glosnosc_guziczki [10] = {0,0.25,0.5,1,2,4,8,10,15,20};
 uint16_t value[1];
+uint8_t sizeutwor;
 DIR dir;
 
 uint8_t eof;
@@ -137,7 +135,8 @@ FRESULT res;
   	  	  		nr_utworu=i-1;
   	  	  		if(nr_utworu==0)read_song();
             	}
-
+    			HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_15);
+    			sizeutwor = strlen(utwor);
                	return;
 }
 
@@ -153,6 +152,8 @@ void next(){
 	 lcd_clear ();
 	lcd_put_cur(0, 0);
 	lcd_send_string(&utwor);
+	lcd_put_cur(1, 0);
+	lcd_send_string("PLAY");
 	 HAL_TIM_Base_Start_IT(&htim4);
 }
 
@@ -168,6 +169,8 @@ void prev(){
 	 lcd_clear ();
 	lcd_put_cur(0, 0);
 	lcd_send_string(&utwor);
+	lcd_put_cur(1, 0);
+	lcd_send_string("PLAY");
 	HAL_TIM_Base_Start_IT(&htim4);
 }
 
@@ -300,9 +303,36 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef*huart)
 			{
 
 			HAL_UART_Receive_IT(&huart2, receiveUART, sizeReceiveUART);
-			if(receiveUART[0]==79){
-				HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_13);
-			}
+			if(receiveUART[0]==65){
+							HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_12);
+							prev();
+						}
+						if(receiveUART[0]==66){
+
+							HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_13);
+							if(stan==1){
+								HAL_UART_Transmit_IT(&huart2, &utwor, sizeutwor);
+									lcd_clear();
+									lcd_put_cur(0, 0);
+									lcd_send_string(&utwor);
+									lcd_put_cur(1, 0);
+									lcd_send_string("PLAY");
+									 HAL_TIM_Base_Start_IT(&htim4);
+									 stan = 0;
+									 }
+									 else
+									 {
+										 lcd_clear();
+										 lcd_put_cur(1, 0);
+										 lcd_send_string("PAUSE");
+										 HAL_TIM_Base_Stop_IT(&htim4);
+										 stan=1;
+									 }
+									}
+						if(receiveUART[0]==67){
+							HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_14);
+										next();
+									}
 			}
 	}
 
@@ -357,7 +387,7 @@ int main(void)
    // HAL_ADC_Start_IT(&hadc1);
 
    // HAL_UART_Transmit_IT(&huart2, sendUART, sizeSendUART);
-
+  	  	 HAL_UART_Receive_IT(&huart2, receiveUART, sizeReceiveUART);
     	fresult = f_mount(&FatFs, "", 1);
     	read_song();
         fresult = f_open(&file, &utwor , FA_READ|FA_OPEN_EXISTING|FA_OPEN_ALWAYS);
@@ -481,7 +511,7 @@ static void MX_ADC1_Init(void)
   */
   sConfig.Channel = ADC_CHANNEL_3;
   sConfig.Rank = 1;
-  sConfig.SamplingTime = ADC_SAMPLETIME_480CYCLES;
+  sConfig.SamplingTime = ADC_SAMPLETIME_56CYCLES;
   if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
   {
     Error_Handler();
@@ -725,19 +755,9 @@ static void MX_DMA_Init(void)
 {
 
   /* DMA controller clock enable */
-  __HAL_RCC_DMA1_CLK_ENABLE();
   __HAL_RCC_DMA2_CLK_ENABLE();
 
   /* DMA interrupt init */
-  /* DMA1_Stream0_IRQn interrupt configuration */
-  HAL_NVIC_SetPriority(DMA1_Stream0_IRQn, 0, 0);
-  HAL_NVIC_EnableIRQ(DMA1_Stream0_IRQn);
-  /* DMA1_Stream5_IRQn interrupt configuration */
-  HAL_NVIC_SetPriority(DMA1_Stream5_IRQn, 0, 0);
-  HAL_NVIC_EnableIRQ(DMA1_Stream5_IRQn);
-  /* DMA1_Stream7_IRQn interrupt configuration */
-  HAL_NVIC_SetPriority(DMA1_Stream7_IRQn, 0, 0);
-  HAL_NVIC_EnableIRQ(DMA1_Stream7_IRQn);
   /* DMA2_Stream0_IRQn interrupt configuration */
   HAL_NVIC_SetPriority(DMA2_Stream0_IRQn, 0, 0);
   HAL_NVIC_EnableIRQ(DMA2_Stream0_IRQn);
