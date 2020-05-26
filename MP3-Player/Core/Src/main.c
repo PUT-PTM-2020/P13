@@ -130,7 +130,8 @@ FRESULT res;
                 	z = strlen(fno.fname);
                 	i++;
             	}
-            	while(i<=nr_utworu || (fno.fname[z-1]!='V') || (fno.fname[z-2]!='A')|| (fno.fname[z-3]!='W'));
+            	while(i<=nr_utworu ||(fno.fname[z-1]!='3') || (fno.fname[z-2]!='P')|| (fno.fname[z-3]!='M'));
+  	  	  	//(fno.fname[z-1]!='V') || (fno.fname[z-2]!='A')|| (fno.fname[z-3]!='W')||
   	  	  		sprintf(utwor,"%s",fno.fname);
   	  	  		nr_utworu=i-1;
   	  	  		if(nr_utworu==0)read_song();
