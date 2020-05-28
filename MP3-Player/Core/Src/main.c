@@ -299,22 +299,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 			else bufforek();*/
 
 	}
-	if(htim->Instance == TIM6)
-	{
-		i++;
 
-		if(i>=BUFSIZE){
-			HAL_DAC_Stop_DMA(&hdac, DAC_CHANNEL_1);
-			if(aktualny_bufor==0){
-				f_read(&file, &buf2,BUFSIZE, &bytes_read);
-				HAL_DAC_Start_DMA(&hdac, DAC_CHANNEL_1, &buf, BUFSIZE, DAC_ALIGN_12B_R);
-			}
-			else if(aktualny_bufor==1){
-				f_read(&file, &buf,BUFSIZE, &bytes_read);
-				HAL_DAC_Start_DMA(&hdac, DAC_CHANNEL_1, &buf2, BUFSIZE, DAC_ALIGN_12B_R);
-			}
-		}
-	}
 
 }
 
@@ -357,6 +342,24 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef*huart)
 			}
 	}
 
+void HAL_TIM_TriggerCallback(TIM_HandleTypeDef *htim){
+	if(htim->Instance == TIM6)
+		{
+			i++;
+
+			if(i>=BUFSIZE){
+				HAL_DAC_Stop_DMA(&hdac, DAC_CHANNEL_1);
+				if(aktualny_bufor==0){
+					f_read(&file, &buf2,BUFSIZE, &bytes_read);
+					HAL_DAC_Start_DMA(&hdac, DAC_CHANNEL_1, &buf, BUFSIZE, DAC_ALIGN_12B_R);
+				}
+				else if(aktualny_bufor==1){
+					f_read(&file, &buf,BUFSIZE, &bytes_read);
+					HAL_DAC_Start_DMA(&hdac, DAC_CHANNEL_1, &buf2, BUFSIZE, DAC_ALIGN_12B_R);
+				}
+			}
+		}
+}
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
