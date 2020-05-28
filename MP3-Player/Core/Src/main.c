@@ -50,6 +50,7 @@ ADC_HandleTypeDef hadc1;
 DMA_HandleTypeDef hdma_adc1;
 
 DAC_HandleTypeDef hdac;
+DMA_HandleTypeDef hdma_dac1;
 
 I2C_HandleTypeDef hi2c3;
 
@@ -224,14 +225,15 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
 		 //pause/start
 
 		 if(stan==1){
-		//HAL_TIM_Base_Start(&htim6);
-		//HAL_DAC_Start_DMA(&hdac, DAC_CHANNEL_1, &buf, 60000, DAC_ALIGN_12B_R);
+		HAL_TIM_Base_Start(&htim6);
+		HAL_DAC_Start_DMA(&hdac, DAC_CHANNEL_1, &buf, BUFSIZE, DAC_ALIGN_12B_R);
 		lcd_clear();
 		lcd_put_cur(0, 0);
 		lcd_send_string(&utwor);
 		lcd_put_cur(1, 0);
 		lcd_send_string("PLAY");
-		 HAL_TIM_Base_Start_IT(&htim4);
+
+		// HAL_TIM_Base_Start_IT(&htim4);
 		 //HAL_TIM_Base_Start_IT(&htim7);
 		 stan = 0;
 		 }
@@ -240,7 +242,8 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
 			 lcd_clear();
 			 lcd_put_cur(1, 0);
 			 lcd_send_string("PAUSE");
-			 HAL_TIM_Base_Stop_IT(&htim4);
+			 HAL_TIM_Base_Start(&htim6);
+			//HAL_TIM_Base_Stop_IT(&htim4);
 			 stan=1;
 		 }
 
@@ -294,6 +297,22 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 			}
 			else bufforek();*/
 
+	}
+	if(htim->Instance == TIM6)
+	{
+		i++;
+
+		if(i>=BUFSIZE){
+			HAL_DAC_Stop_DMA(&hdac, DAC_CHANNEL_1);
+			if(aktualny_bufor==0){
+				f_read(&file, &buf2,BUFSIZE, &bytes_read);
+				HAL_DAC_Start_DMA(&hdac, DAC_CHANNEL_1, &buf, BUFSIZE, DAC_ALIGN_12B_R);
+			}
+			else if(aktualny_bufor==1){
+				f_read(&file, &buf,BUFSIZE, &bytes_read);
+				HAL_DAC_Start_DMA(&hdac, DAC_CHANNEL_1, &buf2, BUFSIZE, DAC_ALIGN_12B_R);
+			}
+		}
 	}
 
 }
@@ -696,9 +715,9 @@ static void MX_TIM6_Init(void)
 
   /* USER CODE END TIM6_Init 1 */
   htim6.Instance = TIM6;
-  htim6.Init.Prescaler = 0;
+  htim6.Init.Prescaler = 126;
   htim6.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim6.Init.Period = 1905;
+  htim6.Init.Period = 114;
   htim6.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
   if (HAL_TIM_Base_Init(&htim6) != HAL_OK)
   {
@@ -757,8 +776,12 @@ static void MX_DMA_Init(void)
 
   /* DMA controller clock enable */
   __HAL_RCC_DMA2_CLK_ENABLE();
+  __HAL_RCC_DMA1_CLK_ENABLE();
 
   /* DMA interrupt init */
+  /* DMA1_Stream5_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(DMA1_Stream5_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(DMA1_Stream5_IRQn);
   /* DMA2_Stream0_IRQn interrupt configuration */
   HAL_NVIC_SetPriority(DMA2_Stream0_IRQn, 0, 0);
   HAL_NVIC_EnableIRQ(DMA2_Stream0_IRQn);
