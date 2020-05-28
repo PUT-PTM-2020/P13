@@ -131,8 +131,9 @@ FRESULT res;
                 	z = strlen(fno.fname);
                 	i++;
             	}
-            	while(i<=nr_utworu ||(fno.fname[z-1]!='3') || (fno.fname[z-2]!='P')|| (fno.fname[z-3]!='M'));
-  	  	  	//(fno.fname[z-1]!='V') || (fno.fname[z-2]!='A')|| (fno.fname[z-3]!='W')||
+            	while(i<=nr_utworu ||(fno.fname[z-1]!='V') || (fno.fname[z-2]!='A')|| (fno.fname[z-3]!='W'));
+  	  	  	//||
+  	  	  	//(fno.fname[z-1]!='3') || (fno.fname[z-2]!='P')|| (fno.fname[z-3]!='M')
   	  	  		sprintf(utwor,"%s",fno.fname);
   	  	  		nr_utworu=i-1;
   	  	  		if(nr_utworu==0)read_song();
@@ -401,8 +402,8 @@ int main(void)
   MX_TIM4_Init();
   /* USER CODE BEGIN 2 */
 
-  HAL_DAC_Start(&hdac,DAC_CHANNEL_1);
-  HAL_TIM_Base_Start_IT(&htim6);
+ // HAL_DAC_Start(&hdac,DAC_CHANNEL_1);
+ // HAL_TIM_Base_Start_IT(&htim6);
 
    // HAL_ADC_Start_IT(&hadc1);
 
