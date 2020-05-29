@@ -40,8 +40,8 @@ MP3-Player.bin \
 all: MP3-Player.elf secondary-outputs
 
 # Tool invocations
-MP3-Player.elf: $(OBJS) $(USER_OBJS) E:\Dokumenty\GitHub\P13\MP3_PLAYER\MP3-Player\STM32F407VGTX_FLASH.ld
-	arm-none-eabi-gcc -o "MP3-Player.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"E:\Dokumenty\GitHub\P13\MP3_PLAYER\MP3-Player\STM32F407VGTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="MP3-Player.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+MP3-Player.elf: $(OBJS) $(USER_OBJS) C:\Users\Łukasz\Desktop\git\MP3-Player\STM32F407VGTX_FLASH.ld
+	arm-none-eabi-gcc -o "MP3-Player.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"C:\Users\Łukasz\Desktop\git\MP3-Player\STM32F407VGTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="MP3-Player.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 
