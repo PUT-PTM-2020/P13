@@ -50,9 +50,10 @@ ADC_HandleTypeDef hadc1;
 DMA_HandleTypeDef hdma_adc1;
 
 DAC_HandleTypeDef hdac;
-DMA_HandleTypeDef hdma_dac1;
 
 I2C_HandleTypeDef hi2c3;
+
+I2S_HandleTypeDef hi2s2;
 
 SPI_HandleTypeDef hspi3;
 
@@ -108,6 +109,7 @@ static void MX_SPI3_Init(void);
 static void MX_TIM6_Init(void);
 static void MX_USART2_UART_Init(void);
 static void MX_TIM4_Init(void);
+static void MX_I2S2_Init(void);
 /* USER CODE BEGIN PFP */
 
 
@@ -226,15 +228,15 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
 		 //pause/start
 
 		 if(stan==1){
-		HAL_TIM_Base_Start(&htim6);
-		HAL_DAC_Start_DMA(&hdac, DAC_CHANNEL_1, &buf, BUFSIZE, DAC_ALIGN_12B_R);
+		//HAL_TIM_Base_Start(&htim6);
+		//HAL_DAC_Start_DMA(&hdac, DAC_CHANNEL_1, &buf, BUFSIZE, DAC_ALIGN_12B_R);
 		lcd_clear();
 		lcd_put_cur(0, 0);
 		lcd_send_string(&utwor);
 		lcd_put_cur(1, 0);
 		lcd_send_string("PLAY");
 
-		// HAL_TIM_Base_Start_IT(&htim4);
+		HAL_TIM_Base_Start_IT(&htim4);
 		 //HAL_TIM_Base_Start_IT(&htim7);
 		 stan = 0;
 		 }
@@ -243,8 +245,8 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
 			 lcd_clear();
 			 lcd_put_cur(1, 0);
 			 lcd_send_string("PAUSE");
-			 HAL_TIM_Base_Start(&htim6);
-			//HAL_TIM_Base_Stop_IT(&htim4);
+			 //HAL_TIM_Base_Start(&htim6);
+			HAL_TIM_Base_Stop_IT(&htim4);
 			 stan=1;
 		 }
 
@@ -268,7 +270,8 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 	if(htim->Instance == TIM4)
 	{
 		if(aktualny_bufor==0){
-					HAL_DAC_SetValue(&hdac,DAC_CHANNEL_1,DAC_ALIGN_12B_R,buf[i]*(value[0]/500));
+					//HAL_DAC_SetValue(&hdac,DAC_CHANNEL_1,DAC_ALIGN_12B_R,buf[i]*(value[0]/500));
+					HAL_I2S_Transmit(&hi2s2, &buf[i], BUFSIZE);
 					eof=f_eof(&file);
 					if(eof ==0) f_read(&file, &buf2[i],1, &bytes_read);
 					else {next();}
@@ -281,7 +284,8 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 				}
 
 			if(aktualny_bufor==1){
-				HAL_DAC_SetValue(&hdac,DAC_CHANNEL_1,DAC_ALIGN_12B_R,buf2[j]*(value[0]/500));
+				//HAL_DAC_SetValue(&hdac,DAC_CHANNEL_1,DAC_ALIGN_12B_R,buf2[j]*(value[0]/500));
+				HAL_I2S_Transmit(&hi2s2, &buf2[j], BUFSIZE);
 				eof=f_eof(&file);
 				if(eof ==0) f_read(&file, &buf[j],1, &bytes_read);
 				else {next();}
@@ -341,7 +345,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef*huart)
 									}
 			}
 	}
-
+/*
 void HAL_TIM_TriggerCallback(TIM_HandleTypeDef *htim){
 	if(htim->Instance == TIM6)
 		{
@@ -359,7 +363,7 @@ void HAL_TIM_TriggerCallback(TIM_HandleTypeDef *htim){
 				}
 			}
 		}
-}
+}*/
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -403,9 +407,10 @@ int main(void)
   MX_TIM6_Init();
   MX_USART2_UART_Init();
   MX_TIM4_Init();
+  MX_I2S2_Init();
   /* USER CODE BEGIN 2 */
 
- // HAL_DAC_Start(&hdac,DAC_CHANNEL_1);
+  HAL_DAC_Start(&hdac,DAC_CHANNEL_1);
  // HAL_TIM_Base_Start_IT(&htim6);
 
    // HAL_ADC_Start_IT(&hadc1);
@@ -462,6 +467,7 @@ void SystemClock_Config(void)
 {
   RCC_OscInitTypeDef RCC_OscInitStruct = {0};
   RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
+  RCC_PeriphCLKInitTypeDef PeriphClkInitStruct = {0};
 
   /** Configure the main internal regulator output voltage 
   */
@@ -491,6 +497,13 @@ void SystemClock_Config(void)
   RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV2;
 
   if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_5) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_I2S;
+  PeriphClkInitStruct.PLLI2S.PLLI2SN = 192;
+  PeriphClkInitStruct.PLLI2S.PLLI2SR = 2;
+  if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
   {
     Error_Handler();
   }
@@ -615,6 +628,40 @@ static void MX_I2C3_Init(void)
   /* USER CODE BEGIN I2C3_Init 2 */
 
   /* USER CODE END I2C3_Init 2 */
+
+}
+
+/**
+  * @brief I2S2 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_I2S2_Init(void)
+{
+
+  /* USER CODE BEGIN I2S2_Init 0 */
+
+  /* USER CODE END I2S2_Init 0 */
+
+  /* USER CODE BEGIN I2S2_Init 1 */
+
+  /* USER CODE END I2S2_Init 1 */
+  hi2s2.Instance = SPI2;
+  hi2s2.Init.Mode = I2S_MODE_MASTER_TX;
+  hi2s2.Init.Standard = I2S_STANDARD_PHILIPS;
+  hi2s2.Init.DataFormat = I2S_DATAFORMAT_16B;
+  hi2s2.Init.MCLKOutput = I2S_MCLKOUTPUT_ENABLE;
+  hi2s2.Init.AudioFreq = I2S_AUDIOFREQ_44K;
+  hi2s2.Init.CPOL = I2S_CPOL_LOW;
+  hi2s2.Init.ClockSource = I2S_CLOCK_PLL;
+  hi2s2.Init.FullDuplexMode = I2S_FULLDUPLEXMODE_DISABLE;
+  if (HAL_I2S_Init(&hi2s2) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN I2S2_Init 2 */
+
+  /* USER CODE END I2S2_Init 2 */
 
 }
 
@@ -780,12 +827,8 @@ static void MX_DMA_Init(void)
 
   /* DMA controller clock enable */
   __HAL_RCC_DMA2_CLK_ENABLE();
-  __HAL_RCC_DMA1_CLK_ENABLE();
 
   /* DMA interrupt init */
-  /* DMA1_Stream5_IRQn interrupt configuration */
-  HAL_NVIC_SetPriority(DMA1_Stream5_IRQn, 0, 0);
-  HAL_NVIC_EnableIRQ(DMA1_Stream5_IRQn);
   /* DMA2_Stream0_IRQn interrupt configuration */
   HAL_NVIC_SetPriority(DMA2_Stream0_IRQn, 0, 0);
   HAL_NVIC_EnableIRQ(DMA2_Stream0_IRQn);
@@ -803,10 +846,10 @@ static void MX_GPIO_Init(void)
 
   /* GPIO Ports Clock Enable */
   __HAL_RCC_GPIOH_CLK_ENABLE();
+  __HAL_RCC_GPIOC_CLK_ENABLE();
   __HAL_RCC_GPIOA_CLK_ENABLE();
   __HAL_RCC_GPIOB_CLK_ENABLE();
   __HAL_RCC_GPIOD_CLK_ENABLE();
-  __HAL_RCC_GPIOC_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOD, GPIO_PIN_12|GPIO_PIN_13|GPIO_PIN_14|GPIO_PIN_15, GPIO_PIN_RESET);
