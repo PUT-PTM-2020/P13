@@ -193,8 +193,8 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 	if(htim->Instance == TIM4)
 	{
 		if(aktualny_bufor==0){
-					//HAL_DAC_SetValue(&hdac,DAC_CHANNEL_1,DAC_ALIGN_12B_R,buf[i]*(value[0]/500));
-					HAL_I2S_Transmit(&hi2s2, &buf[i], BUFSIZE,100);
+					HAL_DAC_SetValue(&hdac,DAC_CHANNEL_1,DAC_ALIGN_12B_R,buf[i]*(value[0]/500));
+					//HAL_I2S_Transmit(&hi2s2, &buf[i], BUFSIZE,100);
 					eof=f_eof(&file);
 					if(eof ==0) f_read(&file, &buf2[i],1, &bytes_read);
 					else {next();}
@@ -207,8 +207,8 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 				}
 
 			if(aktualny_bufor==1){
-				//HAL_DAC_SetValue(&hdac,DAC_CHANNEL_1,DAC_ALIGN_12B_R,buf2[j]*(value[0]/500));
-				HAL_I2S_Transmit(&hi2s2, &buf2[j], BUFSIZE,100);
+				HAL_DAC_SetValue(&hdac,DAC_CHANNEL_1,DAC_ALIGN_12B_R,buf2[j]*(value[0]/500));
+				//HAL_I2S_Transmit(&hi2s2, &buf2[j], BUFSIZE,100);
 				eof=f_eof(&file);
 				if(eof ==0) f_read(&file, &buf[j],1, &bytes_read);
 				else {next();}
