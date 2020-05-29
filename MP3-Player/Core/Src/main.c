@@ -126,6 +126,9 @@ FRESULT res;
 
 		res = f_opendir(&dir, "/");
     	if (res == FR_OK) {
+    			lcd_clear ();
+    		    		lcd_put_cur(0, 0);
+    		    		lcd_send_string("FR_OK");
   	  	  	do{
             		res = f_readdir(&dir, &fno);
             		if (res != FR_OK || fno.fname[0] == 0) {i=1; break;}
@@ -140,6 +143,7 @@ FRESULT res;
   	  	  		nr_utworu=i-1;
   	  	  		if(nr_utworu==0)read_song();
             	}
+
     			HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_15);
     			sizeutwor = strlen(utwor);
                	return;
@@ -271,7 +275,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 	{
 		if(aktualny_bufor==0){
 					//HAL_DAC_SetValue(&hdac,DAC_CHANNEL_1,DAC_ALIGN_12B_R,buf[i]*(value[0]/500));
-					HAL_I2S_Transmit(&hi2s2, &buf[i], BUFSIZE);
+					HAL_I2S_Transmit(&hi2s2, &buf[i], BUFSIZE,100);
 					eof=f_eof(&file);
 					if(eof ==0) f_read(&file, &buf2[i],1, &bytes_read);
 					else {next();}
@@ -285,7 +289,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 
 			if(aktualny_bufor==1){
 				//HAL_DAC_SetValue(&hdac,DAC_CHANNEL_1,DAC_ALIGN_12B_R,buf2[j]*(value[0]/500));
-				HAL_I2S_Transmit(&hi2s2, &buf2[j], BUFSIZE);
+				HAL_I2S_Transmit(&hi2s2, &buf2[j], BUFSIZE,100);
 				eof=f_eof(&file);
 				if(eof ==0) f_read(&file, &buf[j],1, &bytes_read);
 				else {next();}
