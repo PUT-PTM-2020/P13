@@ -27,7 +27,6 @@
 #include <stdio.h>
 #include"ff.h"
 #include "lcd.h"
-#include "player.h"
 
 
 /* USER CODE END Includes */
