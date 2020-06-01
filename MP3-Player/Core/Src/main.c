@@ -38,7 +38,7 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-#define BUFSIZE 512
+#define BUFSIZE 1024
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -77,8 +77,7 @@ WORD bytes_written;
 WORD bytes_read;           //liczba odczytanych byte
 
 
-uint8_t sendUART[2] = {65, 'B'};
-uint16_t sizeSendUART = 2;
+
 uint8_t receiveUART[1];
 uint16_t sizeReceiveUART = 1;
 int i=0;
@@ -106,14 +105,14 @@ void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_DMA_Init(void);
 static void MX_ADC1_Init(void);
-static void MX_DAC_Init(void);
 static void MX_I2C3_Init(void);
 static void MX_TIM6_Init(void);
 static void MX_USART2_UART_Init(void);
 static void MX_TIM4_Init(void);
+static void MX_SPI1_Init(void);
+static void MX_DAC_Init(void);
 static void MX_I2C1_Init(void);
 static void MX_I2S3_Init(void);
-static void MX_SPI1_Init(void);
 /* USER CODE BEGIN PFP */
 
 void read_song(){
@@ -128,9 +127,8 @@ FRESULT res;
 
 		res = f_opendir(&dir, "/");
     	if (res == FR_OK) {
-    			lcd_clear ();
-    		    		lcd_put_cur(0, 0);
-    		    		lcd_send_string("FR_OK");
+
+
   	  	  	do{
             		res = f_readdir(&dir, &fno);
             		if (res != FR_OK || fno.fname[0] == 0) {i=1; break;}
@@ -146,7 +144,7 @@ FRESULT res;
   	  	  		if(nr_utworu==0)read_song();
             	}
 
-    			HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_15);
+
     			sizeutwor = strlen(utwor);
                	return;
 }
@@ -263,7 +261,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 	if(htim->Instance == TIM4)
 	{
 		if(aktualny_bufor==0){
-					HAL_DAC_SetValue(&hdac,DAC_CHANNEL_1,DAC_ALIGN_12B_R,buf[i]*(value[0]/500));
+					HAL_DAC_SetValue(&hdac,DAC_CHANNEL_2,DAC_ALIGN_12B_R,buf[i]*(value[0]/500));
 					//HAL_I2S_Transmit(&hi2s2, &buf[i], BUFSIZE,100);
 					eof=f_eof(&file);
 					if(eof ==0) f_read(&file, &buf2[i],1, &bytes_read);
@@ -277,7 +275,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 				}
 
 			if(aktualny_bufor==1){
-				HAL_DAC_SetValue(&hdac,DAC_CHANNEL_1,DAC_ALIGN_12B_R,buf2[j]*(value[0]/500));
+				HAL_DAC_SetValue(&hdac,DAC_CHANNEL_2,DAC_ALIGN_12B_R,buf2[j]*(value[0]/500));
 				//HAL_I2S_Transmit(&hi2s2, &buf2[j], BUFSIZE,100);
 				eof=f_eof(&file);
 				if(eof ==0) f_read(&file, &buf[j],1, &bytes_read);
@@ -394,23 +392,19 @@ int main(void)
   MX_GPIO_Init();
   MX_DMA_Init();
   MX_ADC1_Init();
-  MX_DAC_Init();
   MX_I2C3_Init();
   MX_TIM6_Init();
   MX_USART2_UART_Init();
   MX_TIM4_Init();
+  MX_SPI1_Init();
+  MX_DAC_Init();
   MX_I2C1_Init();
   MX_I2S3_Init();
-  MX_SPI1_Init();
   /* USER CODE BEGIN 2 */
 
-  HAL_DAC_Start(&hdac,DAC_CHANNEL_1);
- // HAL_TIM_Base_Start_IT(&htim6);
+  HAL_DAC_Start(&hdac,DAC_CHANNEL_2);
 
-   // HAL_ADC_Start_IT(&hadc1);
-
-   // HAL_UART_Transmit_IT(&huart2, sendUART, sizeSendUART);
-  	  	 HAL_UART_Receive_IT(&huart2, receiveUART, sizeReceiveUART);
+  	  	HAL_UART_Receive_IT(&huart2, receiveUART, sizeReceiveUART);
     	fresult = f_mount(&FatFs, "", 1);
     	read_song();
         fresult = f_open(&file, &utwor , FA_READ|FA_OPEN_EXISTING|FA_OPEN_ALWAYS);
@@ -419,23 +413,8 @@ int main(void)
         f_read(&file, &buf,BUFSIZE, &bytes_read);
         HAL_ADC_Start_DMA(&hadc1, (uint32_t*)value, 1);
 
-        //HAL_TIM_Base_Start_IT(&htim4);
-      // HAL_DAC_Start_DMA(hdac, DAC_Channel_1, buf, 1, DAC_ALIGN_12B_R);
-
-        //f_read(&file, &buf2,62000, &bytes_read);
-      //  f_read(&file, &buf2,22047, &bytes_read);
         lcd_init();
-        //lcd_send_data(0xFF);
-      //  lcd_send_string ("  Music Player");
-        //HAL_Delay(2000);
-        //lcd_clear ();
-       // lcd_put_cur(1, 0);
 
-
-
-
-
-      //  lcd_send_string("Hello");
 
   /* USER CODE END 2 */
 
@@ -716,7 +695,7 @@ static void MX_SPI1_Init(void)
   hspi1.Init.CLKPolarity = SPI_POLARITY_LOW;
   hspi1.Init.CLKPhase = SPI_PHASE_1EDGE;
   hspi1.Init.NSS = SPI_NSS_SOFT;
-  hspi1.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_2;
+  hspi1.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_16;
   hspi1.Init.FirstBit = SPI_FIRSTBIT_MSB;
   hspi1.Init.TIMode = SPI_TIMODE_DISABLE;
   hspi1.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;
