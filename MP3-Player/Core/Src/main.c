@@ -86,6 +86,11 @@ uint8_t indeks_glosnosci = 4;
 double glosnosc_guziczki [10] = {0,0.25,0.5,1,2,4,8,10,15,20};
 uint16_t value[1];
 uint8_t sizeutwor;
+
+
+double glosnosc;
+uint8_t zrodlo_gloscnoci=0;
+
 DIR dir;
 
 uint8_t eof;
@@ -199,13 +204,21 @@ void prev(){
 	}
 }*/
 
+
+void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc){
+
+	if(hadc->Instance == hadc1.Instance){
+		zrodlo_gloscnoci=1;
+	}
+}
+
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
 
 	 if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_11) == GPIO_PIN_RESET){
 
 		 //ciszej
 
-		 if(indeks_glosnosci>0 && indeks_glosnosci<=9) indeks_glosnosci--;
+		 if(indeks_glosnosci>0 && indeks_glosnosci<=9) {indeks_glosnosci--; zrodlo_gloscnoci=0;}
 
 		  	}
 
@@ -253,8 +266,9 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
 		 //glosniej
 
 		 if(indeks_glosnosci>=0 && indeks_glosnosci<9)
-			 indeks_glosnosci++;
-			 	}
+					 indeks_glosnosci++;
+				 	 zrodlo_gloscnoci=0;
+					 	}
 	 HAL_Delay(200);
 
 }
@@ -262,8 +276,18 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 	if(htim->Instance == TIM4)
 	{
+		switch (zrodlo_gloscnoci){
+				case 0:
+					glosnosc= glosnosc_guziczki[indeks_glosnosci];
+					break;
+				case 1:
+					glosnosc = (value[0]/500);
+					break;
+
+				}
+
 		if(aktualny_bufor==0){
-					HAL_DAC_SetValue(&hdac,DAC_CHANNEL_2,DAC_ALIGN_12B_R,buf[i]*(value[0]/500));
+					HAL_DAC_SetValue(&hdac,DAC_CHANNEL_2,DAC_ALIGN_12B_R,buf[i]*glosnosc);
 					//HAL_I2S_Transmit(&hi2s2, &buf[i], BUFSIZE,100);
 					eof=f_eof(&file);
 					if(eof ==0) f_read(&file, &buf2[i],1, &bytes_read);
@@ -277,7 +301,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 				}
 
 			if(aktualny_bufor==1){
-				HAL_DAC_SetValue(&hdac,DAC_CHANNEL_2,DAC_ALIGN_12B_R,buf2[j]*(value[0]/500));
+				HAL_DAC_SetValue(&hdac,DAC_CHANNEL_2,DAC_ALIGN_12B_R,buf2[j]*glosnosc);
 				//HAL_I2S_Transmit(&hi2s2, &buf2[j], BUFSIZE,100);
 				eof=f_eof(&file);
 				if(eof ==0) f_read(&file, &buf[j],1, &bytes_read);
