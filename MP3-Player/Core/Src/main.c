@@ -168,7 +168,6 @@ void next(){
 	lcd_send_string(&utwor);
 	lcd_put_cur(1, 0);
 	lcd_send_string("PLAY");
-	HAL_UART_Transmit_IT(&huart2, &utwor, sizeutwor);
 	 HAL_TIM_Base_Start_IT(&htim4);
 }
 
@@ -186,7 +185,6 @@ void prev(){
 	lcd_send_string(&utwor);
 	lcd_put_cur(1, 0);
 	lcd_send_string("PLAY");
-	HAL_UART_Transmit_IT(&huart2, &utwor, sizeutwor);
 	HAL_TIM_Base_Start_IT(&htim4);
 }
 /*void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc){
@@ -333,19 +331,17 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef*huart)
 			if(receiveUART[0]==65){
 							HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_12);
 							prev();
-
 						}
 						if(receiveUART[0]==66){
 
 							HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_13);
 							if(stan==1){
-
+								HAL_UART_Transmit_IT(&huart2, &utwor, sizeutwor);
 									lcd_clear();
 									lcd_put_cur(0, 0);
 									lcd_send_string(&utwor);
 									lcd_put_cur(1, 0);
 									lcd_send_string("PLAY");
-									HAL_UART_Transmit_IT(&huart2, &utwor, sizeutwor);
 									 HAL_TIM_Base_Start_IT(&htim4);
 									 stan = 0;
 									 }
@@ -361,7 +357,6 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef*huart)
 						if(receiveUART[0]==67){
 							HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_14);
 										next();
-
 									}
 			}
 	}
