@@ -168,6 +168,8 @@ void next(){
 	lcd_send_string(&utwor);
 	lcd_put_cur(1, 0);
 	lcd_send_string("PLAY");
+	HAL_UART_Transmit_IT(&huart2, &utwor, sizeutwor);
+
 	 HAL_TIM_Base_Start_IT(&htim4);
 }
 
@@ -185,6 +187,8 @@ void prev(){
 	lcd_send_string(&utwor);
 	lcd_put_cur(1, 0);
 	lcd_send_string("PLAY");
+	HAL_UART_Transmit_IT(&huart2, &utwor, sizeutwor);
+
 	HAL_TIM_Base_Start_IT(&htim4);
 }
 /*void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc){
@@ -438,7 +442,7 @@ int main(void)
         HAL_ADC_Start_DMA(&hadc1, (uint32_t*)value, 1);
 
         lcd_init();
-
+        lcd_clear();
 
   /* USER CODE END 2 */
 
