@@ -86,9 +86,11 @@ uint8_t indeks_glosnosci = 4;
 double glosnosc_guziczki [10] = {0,0.25,0.5,1,2,4,8,10,15,20};
 uint16_t value[1];
 uint8_t sizeutwor;
-
+uint8_t bluecon;
+uint16_t potencjometr;
 
 double glosnosc;
+double glosnosc2;
 uint8_t zrodlo_gloscnoci=0;
 
 DIR dir;
@@ -168,6 +170,7 @@ void next(){
 	lcd_send_string(&utwor);
 	lcd_put_cur(1, 0);
 	lcd_send_string("PLAY");
+	if(bluecon==1)
 	HAL_UART_Transmit_IT(&huart2, &utwor, sizeutwor);
 
 	 HAL_TIM_Base_Start_IT(&htim4);
@@ -187,6 +190,7 @@ void prev(){
 	lcd_send_string(&utwor);
 	lcd_put_cur(1, 0);
 	lcd_send_string("PLAY");
+	if(bluecon==1)
 	HAL_UART_Transmit_IT(&huart2, &utwor, sizeutwor);
 
 	HAL_TIM_Base_Start_IT(&htim4);
@@ -210,7 +214,12 @@ void prev(){
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc){
 
 	if(hadc->Instance == hadc1.Instance){
-		zrodlo_gloscnoci=1;
+
+		if(abs( potencjometr - value[0] ) > 10){
+			zrodlo_gloscnoci=1;
+		}
+		potencjometr = value[0];
+
 	}
 }
 
@@ -284,6 +293,12 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 					break;
 				case 1:
 					glosnosc = (value[0]/500);
+				//	if(glosnosc2!=gloscnosc){
+				//	lcd_clear ();
+				//	lcd_put_cur(0, 0);
+				//	lcd_send_string("GŁOŚNOŚĆ ", &glosnosc);
+					//}
+				//	glosnosc2 = (value[0]/500);
 					break;
 
 				}
@@ -332,6 +347,9 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef*huart)
 			{
 
 			HAL_UART_Receive_IT(&huart2, receiveUART, sizeReceiveUART);
+			if(receiveUART[0]==72){
+				bluecon = 1;
+			}
 			if(receiveUART[0]==65){
 							HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_12);
 							prev();
@@ -439,9 +457,12 @@ int main(void)
         fresult = f_read(&file, &buf2, 352, &bytes_read);
 
         f_read(&file, &buf,BUFSIZE, &bytes_read);
+        HAL_ADC_Start(&hadc1);
+        potencjometr = HAL_ADC_GetValue(&hadc1);
         HAL_ADC_Start_DMA(&hadc1, (uint32_t*)value, 1);
 
         lcd_init();
+
         lcd_clear();
 
   /* USER CODE END 2 */
