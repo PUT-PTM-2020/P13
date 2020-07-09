@@ -97,7 +97,7 @@ DIR dir;
 
 uint8_t eof;
 char utwor[20];
-int stan = 1; //0 pauza 1 start
+uint8_t stan = 1; //0 pauza 1 start
 
 uint16_t nr_utworu=0;
 
@@ -216,7 +216,15 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc){
 	if(hadc->Instance == hadc1.Instance){
 
 		if(abs( potencjometr - value[0] ) > 10){
+			if(stan==0){
 			zrodlo_gloscnoci=1;
+
+
+			// lcd_put_cur(1, 0);
+			// lcd_send_string("                ");
+			 lcd_put_cur(1, 5);
+			 lcd_send_string("VOLUME: ");
+			}
 		}
 		potencjometr = value[0];
 
@@ -247,6 +255,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
 		 if(stan==1){
 		//HAL_TIM_Base_Start(&htim6);
 		//HAL_DAC_Start_DMA(&hdac, DAC_CHANNEL_1, &buf, BUFSIZE, DAC_ALIGN_12B_R);
+
 		lcd_clear();
 		lcd_put_cur(0, 0);
 		lcd_send_string(&utwor);
@@ -259,6 +268,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
 		 }
 		 else
 		 {
+
 			 lcd_clear();
 			 lcd_put_cur(1, 0);
 			 lcd_send_string("PAUSE");
@@ -293,12 +303,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 					break;
 				case 1:
 					glosnosc = (value[0]/500);
-				//	if(glosnosc2!=gloscnosc){
-				//	lcd_clear ();
-				//	lcd_put_cur(0, 0);
-				//	lcd_send_string("GŁOŚNOŚĆ ", &glosnosc);
-					//}
-				//	glosnosc2 = (value[0]/500);
+
 					break;
 
 				}
@@ -455,11 +460,11 @@ int main(void)
     	read_song();
         fresult = f_open(&file, &utwor , FA_READ|FA_OPEN_EXISTING|FA_OPEN_ALWAYS);
         fresult = f_read(&file, &buf2, 352, &bytes_read);
-
+    	HAL_ADC_Start_DMA(&hadc1, (uint32_t*)value, 1);
         f_read(&file, &buf,BUFSIZE, &bytes_read);
         HAL_ADC_Start(&hadc1);
         potencjometr = HAL_ADC_GetValue(&hadc1);
-        HAL_ADC_Start_DMA(&hadc1, (uint32_t*)value, 1);
+
 
         lcd_init();
 
